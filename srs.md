@@ -152,5 +152,6 @@ tại đang làm xác định yêu cầu nghiệp vụ
 
 Bước 11-12: Vẽ sơ đồ use case UC01 là customer trong đó có những cái gì + đặc tả use case 
 Bước 13: Acceptance Criteria ( những tiêu chí chấp nhận ) tập hợp tất cả điều kiện, tính năng đáp ứng, giúp cho người làm phần mềm khi nào yêu cầu được kết thúc và nghiệm thu, nếu không đặt ra thì làm hoài không kết thúc dự án được, viết tắt AC01...
+Bước 14: Truy xuất nguồn gốc yêu cầu ( giúp truy xuất các gì liên quan tới giúp theo dõi một yêu cầu được bắt đầu khi nào tới lúc nào ) , tạo ra một bảng truy xuất yêu cầu RTM, trong bảng này có các cột sau đây, Bussiness goals, BR, FR, UC, AC, cho biết BG nào tương ứng BR nào rồi tương ứng FR nào .... kiểu liên kết với nhau, cột 6 là test case 
 
 
