@@ -52,16 +52,17 @@ quadrantChart
     title Stakeholder Power - Interest Grid
     x-axis "Mức độ quan tâm thấp" --> "Mức độ quan tâm cao"
     y-axis "Quyền lực thấp" --> "Quyền lực cao"
+
     quadrant-1 "Quản lý chặt"
     quadrant-2 "Duy trì hài lòng"
     quadrant-3 "Theo dõi"
     quadrant-4 "Cập nhật thông tin"
 
-    "Operator / Admin": [0.90, 0.90]
-    "Customer": [0.85, 0.35]
-    "Driver": [0.80, 0.30]
-    "Payment Gateway": [0.25, 0.20]
-    "Notification Service": [0.20, 0.15]
+    "Operator / Admin": [0.82, 0.82]
+    "Customer": [0.80, 0.30]
+    "Driver": [0.58, 0.20]
+    "Payment Gateway": [0.28, 0.22]
+    "Notification Service": [0.22, 0.10]
 ```
 
 > **Lưu ý:** Sơ đồ trên dùng đúng hai trục **Quyền lực (Power)** và **Mức độ quan tâm (Interest)**. Đây là cách thể hiện phù hợp hơn so với việc dùng “tầm quan trọng” làm một trục.
