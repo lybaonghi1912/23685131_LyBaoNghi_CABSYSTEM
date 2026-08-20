@@ -151,5 +151,6 @@ vd như hệ thống mvp không quan tâm tới thời gian phản hồi dưới
 tại đang làm xác định yêu cầu nghiệp vụ 
 
 Bước 11-12: Vẽ sơ đồ use case UC01 là customer trong đó có những cái gì + đặc tả use case 
+Bước 13: Acceptance Criteria ( những tiêu chí chấp nhận ) tập hợp tất cả điều kiện, tính năng đáp ứng, giúp cho người làm phần mềm khi nào yêu cầu được kết thúc và nghiệm thu, nếu không đặt ra thì làm hoài không kết thúc dự án được, viết tắt AC01...
 
 
