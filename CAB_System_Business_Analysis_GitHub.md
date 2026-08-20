@@ -1,6 +1,5 @@
 # Phân tích nghiệp vụ – CAB System
 
-> **Đồ án cá nhân – Phân tích và thiết kế hệ thống đặt xe**
 Bước 1 - Yêu cầu: Đọc và phân tích sơ khởi của khách hàng giai đoạn 1 ( ngữ cảnh nghiệp vụ )xác định vấn đề nghiệp vụ là gì, tự phân tích đặt ra 1 số câu hỏi khách hàng muốn giải quyết vấn đề gì tại sao hệ thống không làm được mà phải sử dụng hệ thống mới ai tham gia sử dụng hệ thống này ? 
 ## 1. Tổng quan
 
