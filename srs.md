@@ -162,3 +162,72 @@ Các tọa độ trong biểu đồ chỉ thể hiện vị trí tương đối 
 Ban lãnh đạo và nhân viên vận hành thuộc nhóm có mức quan tâm và ảnh hưởng cao nên cần được quản lý chặt chẽ trong suốt dự án.
 
 Khách hàng và tài xế có mức quan tâm cao nhưng mức ảnh hưởng thấp hơn. Hai nhóm này cần được thường xuyên cập nhật và lấy ý kiến để bảo đảm các chức năng đặt xe và thực hiện chuyến phù hợp với nhu cầu sử dụng thực tế.
+
+## Bước 3. Xác định mục tiêu nghiệp vụ
+
+### 3.1. Khái niệm Business Goal
+
+Business Goal là mục tiêu nghiệp vụ mà Công ty ABC muốn đạt được thông qua việc xây dựng CAB System.
+
+Các mục tiêu được xác định dựa trên những vấn đề của hệ thống hiện tại và giới hạn triển khai của phiên bản MVP. Mỗi mục tiêu được ký hiệu bằng mã `BG`.
+
+### 3.2. Danh sách Business Goal
+
+| Mã | Mục tiêu nghiệp vụ | Vấn đề cần giải quyết | Kết quả mong đợi trong MVP |
+|---|---|---|---|
+| BG01 | Tự động hóa quá trình tìm và phân công tài xế | Việc tìm và phân công tài xế đang được thực hiện chủ yếu bằng phương pháp thủ công | Hệ thống có thể tìm tài xế đang sẵn sàng, đúng loại xe và chuyển yêu cầu cho tài xế phù hợp |
+| BG02 | Chuẩn hóa và theo dõi quá trình thực hiện chuyến đi | Khách hàng và nhân viên vận hành khó theo dõi trạng thái hiện tại của chuyến | Mỗi chuyến đi được quản lý theo các trạng thái xác định từ khi tạo yêu cầu đến khi hoàn thành hoặc bị hủy |
+| BG03 | Quản lý tập trung dữ liệu chuyến đi và thanh toán | Thông tin chuyến đi, cước phí và thanh toán chưa được quản lý tập trung | Hệ thống lưu được thông tin chuyến, cước phí, phương thức thanh toán và kết quả thanh toán |
+| BG04 | Cải thiện khả năng xử lý các trường hợp đặt xe không thành công | Hệ thống hiện tại chưa xử lý hiệu quả khi tài xế từ chối hoặc không có tài xế phù hợp | Khi tài xế từ chối, hệ thống có thể tiếp tục tìm tài xế khác; khi không tìm được tài xế, khách hàng nhận được thông báo rõ ràng |
+| BG05 | Hỗ trợ nhân viên vận hành theo dõi hoạt động | Nhân viên vận hành khó theo dõi khách hàng, tài xế và các chuyến đang diễn ra | Nhân viên vận hành có thể tra cứu người dùng, tài xế, chuyến đi và xem các báo cáo cơ bản |
+| BG06 | Ghi nhận phản hồi sau chuyến đi | Doanh nghiệp chưa có dữ liệu tập trung để theo dõi đánh giá của khách hàng đối với tài xế | Khách hàng có thể đánh giá tài xế sau khi chuyến hoàn thành và hệ thống lưu lại kết quả đánh giá |
+
+### 3.3. Phân tích Business Goal
+
+#### BG01 – Tự động hóa quá trình tìm và phân công tài xế
+
+Mục tiêu này giúp giảm sự phụ thuộc vào nhân viên vận hành khi có yêu cầu đặt xe. Trong phiên bản MVP, hệ thống tìm tài xế dựa trên trạng thái sẵn sàng, loại xe và tiêu chí ưu tiên đơn giản.
+
+#### BG02 – Chuẩn hóa và theo dõi chuyến đi
+
+Mỗi chuyến đi cần được quản lý bằng một chuỗi trạng thái thống nhất:
+
+`SEARCHING → ACCEPTED → ARRIVED → IN_PROGRESS → COMPLETED`
+
+Ngoài ra, chuyến có thể chuyển sang `CANCELLED` khi bị hủy theo quy định.
+
+Việc chuẩn hóa trạng thái giúp khách hàng, tài xế và nhân viên vận hành cùng theo dõi một thông tin thống nhất.
+
+#### BG03 – Quản lý tập trung chuyến đi và thanh toán
+
+Hệ thống cần lưu trữ tập trung thông tin chuyến đi, cước phí và kết quả thanh toán. Trong MVP, hệ thống hỗ trợ thanh toán tiền mặt và thanh toán điện tử mô phỏng.
+
+Mục tiêu này không bao gồm việc tích hợp cổng thanh toán hoặc ngân hàng thật.
+
+#### BG04 – Xử lý trường hợp đặt xe không thành công
+
+Khi tài xế được đề xuất từ chối chuyến, hệ thống không yêu cầu khách hàng tạo lại yêu cầu mà tiếp tục tìm tài xế khác.
+
+Nếu không còn tài xế phù hợp, hệ thống kết thúc quá trình tìm kiếm và thông báo kết quả cho khách hàng.
+
+#### BG05 – Hỗ trợ nhân viên vận hành
+
+Nhân viên vận hành cần theo dõi được người dùng, tài xế và chuyến đi. Hệ thống cũng cung cấp báo cáo cơ bản gồm tổng số chuyến, số chuyến hoàn thành, số chuyến bị hủy và tổng doanh thu.
+
+MVP không triển khai hệ thống phân tích dữ liệu hoặc báo cáo nâng cao.
+
+#### BG06 – Ghi nhận phản hồi sau chuyến
+
+Sau khi chuyến đi hoàn thành, khách hàng có thể gửi điểm đánh giá cho tài xế. Kết quả được lưu lại để hỗ trợ theo dõi chất lượng phục vụ và có thể được sử dụng làm tiêu chí tìm tài xế phù hợp.
+
+### 3.4. Giới hạn của Business Goal
+
+Các Business Goal trên chỉ áp dụng cho phạm vi MVP. Dự án không cam kết các mục tiêu như:
+
+- Tự động điều phối tài xế bằng trí tuệ nhân tạo.
+- Theo dõi GPS thời gian thực.
+- Tích hợp cổng thanh toán thật.
+- Hỗ trợ số lượng người dùng ở quy mô rất lớn.
+- Phân tích dữ liệu và dự báo hoạt động nâng cao.
+
+Những nội dung này chỉ có thể được xem xét trong các phiên bản phát triển sau.
