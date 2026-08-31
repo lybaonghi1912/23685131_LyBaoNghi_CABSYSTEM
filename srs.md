@@ -1528,3 +1528,186 @@ Không làm thay đổi dữ liệu hệ thống.
 Các đặc tả Use Case trên mô tả toàn bộ chức năng thuộc phạm vi MVP của CAB System.
 
 Mỗi Use Case đều liên kết với Functional Requirement và Business Rule tương ứng. Các luồng chính và ngoại lệ sẽ được sử dụng để xây dựng Acceptance Criteria và Test Case ở các bước tiếp theo.
+
+## Bước 13. Xây dựng Acceptance Criteria
+
+### 13.1. Khái niệm Acceptance Criteria
+
+Acceptance Criteria là những điều kiện cụ thể mà một yêu cầu phải đáp ứng để được xem là hoàn thành và có thể nghiệm thu.
+
+Mỗi Acceptance Criteria được ký hiệu bằng mã `AC` và được viết theo cấu trúc:
+
+- **Given:** Điều kiện ban đầu.
+- **When:** Hành động được thực hiện.
+- **Then:** Kết quả hệ thống phải trả về.
+
+### 13.2. Danh sách Acceptance Criteria
+
+| Mã AC | FR liên quan | Given – Điều kiện | When – Hành động | Then – Kết quả mong đợi |
+|---|---|---|---|---|
+| AC01 | FR01 | Email chưa tồn tại và thông tin đăng ký hợp lệ | Khách hàng hoặc tài xế gửi yêu cầu đăng ký | Hệ thống tạo tài khoản đúng vai trò; nếu email đã tồn tại thì từ chối |
+| AC02 | FR02 | Tài khoản đã tồn tại | Người dùng nhập đúng email và mật khẩu | Hệ thống xác thực thành công và trả về thông tin phiên đăng nhập; mật khẩu sai thì bị từ chối |
+| AC03 | FR03 | Người dùng đã đăng nhập | Người dùng truy cập một chức năng | Hệ thống chỉ cho phép nếu vai trò có quyền sử dụng chức năng đó |
+| AC04 | FR04 | Khách hàng đã đăng nhập | Khách hàng cập nhật hồ sơ của mình bằng dữ liệu hợp lệ | Hệ thống lưu thông tin mới và không cho phép cập nhật hồ sơ người khác |
+| AC05 | FR05 | Tài xế đã đăng nhập | Tài xế lưu hồ sơ và phương tiện hợp lệ | Hệ thống lưu phương tiện; biển số trùng hoặc loại xe sai phải bị từ chối |
+| AC06 | FR06 | Tài xế có đầy đủ thông tin phương tiện | Tài xế chuyển giữa `AVAILABLE` và `OFFLINE` | Hệ thống cập nhật trạng thái; tài xế `BUSY` không được tự chuyển sang `OFFLINE` |
+| AC07 | FR07 | Khách hàng đã đăng nhập và chưa có chuyến hoạt động | Khách hàng nhập đầy đủ điểm đón, điểm đến, loại xe và khoảng cách | Hệ thống tiếp nhận yêu cầu đặt xe |
+| AC08 | FR08 | Dữ liệu đặt xe hợp lệ | Khách hàng gửi yêu cầu | Hệ thống tạo chuyến có mã riêng và trạng thái `SEARCHING`; dữ liệu thiếu phải bị từ chối |
+| AC09 | FR09 | Khách hàng sở hữu chuyến | Khách hàng xem chuyến hiện tại | Hệ thống trả về trạng thái hiện tại và thông tin tài xế nếu đã được phân công |
+| AC10 | FR10 | Có nhiều tài xế trong dữ liệu thử nghiệm | Hệ thống tìm tài xế cho chuyến | Chỉ tài xế `AVAILABLE`, đúng loại xe và trong bán kính 5 km được lựa chọn |
+| AC11 | FR11 | Có từ hai tài xế phù hợp trở lên | Hệ thống sắp xếp danh sách | Tài xế gần hơn được ưu tiên; nếu bằng khoảng cách thì tài xế có rating cao hơn được ưu tiên |
+| AC12 | FR12 | Có tài xế phù hợp | Hệ thống gửi yêu cầu chuyến | Một `DRIVER_OFFER` trạng thái `PENDING`, thời hạn 30 giây và thông báo cho tài xế được tạo |
+| AC13 | FR13 | Tài xế có một đề xuất còn hiệu lực | Tài xế chấp nhận, từ chối hoặc không phản hồi | Chấp nhận thì được phân công; từ chối hoặc hết hạn thì hệ thống chuyển sang tài xế tiếp theo |
+| AC14 | FR14 | Không còn tài xế phù hợp | Quá trình tìm kiếm kết thúc | Chuyến chuyển sang `NO_DRIVER` và khách hàng nhận thông báo |
+| AC15 | FR15 | Tài xế được phân công cho chuyến | Tài xế cập nhật trạng thái | Hệ thống chỉ chấp nhận trình tự `ACCEPTED → ARRIVED → IN_PROGRESS → COMPLETED` |
+| AC16 | FR16 | Chuyến chưa `IN_PROGRESS` | Khách hàng hoặc tài xế yêu cầu hủy | Chuyến chuyển sang `CANCELLED`; nếu chuyến đã bắt đầu thì yêu cầu hủy bị từ chối |
+| AC17 | FR17 | Tài xế chấp nhận, hoàn thành hoặc hủy chuyến | Trạng thái chuyến thay đổi | Tài xế chuyển sang `BUSY` khi nhận chuyến và về `AVAILABLE` khi chuyến kết thúc |
+| AC18 | FR18 | Chuyến đã `COMPLETED` và có khoảng cách hợp lệ | Hệ thống tính cước | Cước bằng phí mở cửa cộng khoảng cách nhân giá mỗi kilomet của loại xe |
+| AC19 | FR19 | Chuyến đã hoàn thành và chưa thanh toán | Khách hàng chọn `CASH` | Hệ thống tạo giao dịch `SUCCESS` với số tiền bằng cước chuyến |
+| AC20 | FR20 | Chuyến đã hoàn thành và chưa thanh toán | Khách hàng chọn `ELECTRONIC` | Hệ thống mô phỏng `SUCCESS` hoặc `FAILED`; khi thất bại có thể thử lại hoặc chuyển sang tiền mặt |
+| AC21 | FR21 | Một sự kiện quan trọng xảy ra | Trạng thái tìm tài xế, chuyến hoặc thanh toán thay đổi | Hệ thống tạo thông báo đúng người nhận và nội dung |
+| AC22 | FR22 | Người dùng đã đăng nhập | Người dùng xem danh sách thông báo | Hệ thống chỉ trả về những thông báo thuộc tài khoản đó |
+| AC23 | FR23 | Khách hàng hoặc tài xế đã đăng nhập | Người dùng xem lịch sử | Hệ thống chỉ trả về các chuyến liên quan đến người dùng và sắp xếp chuyến mới nhất trước |
+| AC24 | FR24 | Chuyến đã hoàn thành và chưa được đánh giá | Khách hàng gửi điểm nguyên từ 1 đến 5 | Hệ thống lưu một đánh giá và cập nhật rating trung bình; đánh giá lần hai bị từ chối |
+| AC25 | FR25 | Nhân viên vận hành đã đăng nhập | Nhân viên tra cứu người dùng, tài xế, phương tiện hoặc chuyến | Hệ thống trả về dữ liệu phù hợp với điều kiện tìm kiếm |
+| AC26 | FR26 | Hệ thống có dữ liệu chuyến | Nhân viên lọc chuyến theo trạng thái | Hệ thống trả về đúng các chuyến thuộc trạng thái được chọn |
+| AC27 | FR27 | Nhân viên vận hành đã đăng nhập | Nhân viên xem báo cáo | Hệ thống trả về tổng chuyến, chuyến hoàn thành, chuyến hủy và doanh thu từ thanh toán thành công |
+
+### 13.3. Điều kiện nghiệm thu quy trình chính
+
+Quy trình đặt xe chính được xem là hoàn thành khi có thể demo đầy đủ:
+
+1. Khách hàng đăng ký và đăng nhập.
+2. Tài xế đăng ký, thêm phương tiện và chuyển sang `AVAILABLE`.
+3. Khách hàng tạo yêu cầu đặt xe.
+4. Hệ thống tìm và gửi yêu cầu cho tài xế.
+5. Tài xế chấp nhận chuyến.
+6. Tài xế cập nhật chuyến qua đúng các trạng thái.
+7. Hệ thống tính đúng cước.
+8. Khách hàng thanh toán.
+9. Khách hàng đánh giá tài xế.
+10. Nhân viên vận hành xem chuyến và báo cáo.
+
+### 13.4. Điều kiện nghiệm thu các ngoại lệ
+
+Hệ thống cũng phải demo được:
+
+1. Đăng ký bằng email đã tồn tại.
+2. Người dùng truy cập chức năng không đúng vai trò.
+3. Khách hàng tạo chuyến khi đang có chuyến khác.
+4. Tài xế đầu tiên từ chối và hệ thống chuyển sang tài xế tiếp theo.
+5. Không tìm được tài xế phù hợp.
+6. Cập nhật sai trình tự trạng thái.
+7. Hủy chuyến sau khi đã `IN_PROGRESS`.
+8. Thanh toán điện tử mô phỏng thất bại.
+9. Đánh giá tài xế hai lần.
+
+### 13.5. Kết luận
+
+Mỗi Acceptance Criteria đều có điều kiện đầu vào, hành động và kết quả kiểm chứng cụ thể. Một FR chỉ được xem là hoàn thành khi Acceptance Criteria tương ứng được đáp ứng và demo thành công.
+
+---
+
+## Bước 14. Xây dựng Requirement Traceability Matrix
+
+### 14.1. Khái niệm Requirement Traceability Matrix
+
+Requirement Traceability Matrix – RTM – là bảng truy xuất nguồn gốc yêu cầu.
+
+RTM giúp kiểm tra một mục tiêu nghiệp vụ đã được chuyển thành yêu cầu, Use Case, Acceptance Criteria và Test Case hay chưa.
+
+Chuỗi truy xuất được sử dụng:
+
+`Business Goal → Business Requirement → Functional Requirement → Use Case → Acceptance Criteria → Test Case`
+
+### 14.2. Requirement Traceability Matrix
+
+| Business Goal | Business Requirement | Functional Requirement | Use Case | Acceptance Criteria | Test Case |
+|---|---|---|---|---|---|
+| BG05 | BR01 | FR01 | UC01 | AC01 | TC01 – Đăng ký hợp lệ và kiểm tra email trùng |
+| BG05 | BR01 | FR02 | UC02 | AC02 | TC02 – Đăng nhập đúng và sai mật khẩu |
+| BG05 | BR01 | FR03 | UC02 | AC03 | TC03 – Kiểm tra truy cập sai vai trò |
+| BG05 | BR02 | FR04 | UC03 | AC04 | TC04 – Khách hàng cập nhật hồ sơ |
+| BG01, BG05 | BR02 | FR05 | UC03, UC12 | AC05 | TC05 – Tài xế cập nhật hồ sơ và phương tiện |
+| BG01, BG05 | BR02 | FR06 | UC13 | AC06 | TC06 – Tài xế thay đổi trạng thái hoạt động |
+| BG01, BG02 | BR03 | FR07 | UC04 | AC07 | TC07 – Khách hàng nhập thông tin đặt xe |
+| BG01, BG02 | BR03 | FR08 | UC04 | AC08 | TC08 – Tạo chuyến và kiểm tra dữ liệu không hợp lệ |
+| BG02 | BR03 | FR09 | UC06 | AC09 | TC09 – Khách hàng theo dõi trạng thái chuyến |
+| BG01 | BR04 | FR10 | UC05 | AC10 | TC10 – Lọc tài xế theo trạng thái, loại xe và khoảng cách |
+| BG01 | BR04 | FR11 | UC05 | AC11 | TC11 – Sắp xếp tài xế theo khoảng cách và rating |
+| BG01 | BR04 | FR12 | UC05, UC14 | AC12 | TC12 – Tạo và gửi đề xuất chuyến |
+| BG01, BG04 | BR04 | FR13 | UC05, UC14 | AC13 | TC13 – Tài xế chấp nhận, từ chối hoặc hết hạn |
+| BG04 | BR04 | FR14 | UC05 | AC14 | TC14 – Không tìm được tài xế |
+| BG02 | BR05 | FR15 | UC15 | AC15 | TC15 – Cập nhật trạng thái chuyến đúng và sai trình tự |
+| BG02, BG04 | BR05 | FR16 | UC07 | AC16 | TC16 – Hủy chuyến hợp lệ và không hợp lệ |
+| BG02 | BR05 | FR17 | UC07, UC15 | AC17 | TC17 – Đồng bộ trạng thái tài xế |
+| BG03 | BR06 | FR18 | UC08, UC15 | AC18 | TC18 – Tính cước xe máy và ô tô |
+| BG03 | BR06 | FR19 | UC08 | AC19 | TC19 – Thanh toán tiền mặt |
+| BG03 | BR06 | FR20 | UC08 | AC20 | TC20 – Thanh toán điện tử thành công và thất bại |
+| BG02, BG04 | BR07 | FR21 | UC05, UC07, UC08, UC15 | AC21 | TC21 – Tạo thông báo theo sự kiện |
+| BG02 | BR07 | FR22 | UC11 | AC22 | TC22 – Người dùng xem thông báo của mình |
+| BG03 | BR08 | FR23 | UC09 | AC23 | TC23 – Xem lịch sử chuyến theo tài khoản |
+| BG06 | BR08 | FR24 | UC10 | AC24 | TC24 – Đánh giá hợp lệ và đánh giá trùng |
+| BG05 | BR09 | FR25 | UC16 | AC25 | TC25 – Nhân viên vận hành tra cứu dữ liệu |
+| BG05 | BR09 | FR26 | UC16 | AC26 | TC26 – Lọc chuyến theo trạng thái |
+| BG05 | BR09 | FR27 | UC17 | AC27 | TC27 – Kiểm tra báo cáo và doanh thu |
+
+### 14.3. Danh sách Test Case tổng quát
+
+| Mã Test Case | Nội dung kiểm thử chính | Kết quả mong đợi |
+|---|---|---|
+| TC01 | Đăng ký bằng email mới và đăng ký lại bằng email đó | Lần đầu thành công, lần sau bị từ chối |
+| TC02 | Đăng nhập bằng mật khẩu đúng và sai | Đúng thì xác thực thành công, sai thì bị từ chối |
+| TC03 | Customer gọi API dành cho Operator | Hệ thống trả về lỗi không đủ quyền |
+| TC04 | Khách hàng cập nhật họ tên và số điện thoại | Hồ sơ được cập nhật |
+| TC05 | Tài xế lưu phương tiện hợp lệ và biển số trùng | Hợp lệ được lưu, biển số trùng bị từ chối |
+| TC06 | Tài xế chuyển `OFFLINE → AVAILABLE` và thử `BUSY → OFFLINE` | Lần đầu thành công, lần sau bị từ chối |
+| TC07 | Tạo chuyến với đầy đủ dữ liệu | Yêu cầu được tiếp nhận |
+| TC08 | Tạo chuyến thiếu điểm đến hoặc khi đang có chuyến khác | Hệ thống từ chối tạo chuyến |
+| TC09 | Khách hàng xem chuyến đã được phân công | Trạng thái và tài xế được hiển thị |
+| TC10 | Tìm tài xế từ dữ liệu gồm nhiều trạng thái và loại xe | Chỉ tài xế phù hợp được chọn |
+| TC11 | Có nhiều tài xế phù hợp với khoảng cách và rating khác nhau | Hệ thống chọn đúng thứ tự ưu tiên |
+| TC12 | Gửi chuyến cho tài xế phù hợp | `DRIVER_OFFER` và thông báo được tạo |
+| TC13 | Tài xế từ chối, hết hạn và chấp nhận | Hệ thống xử lý đúng từng phản hồi |
+| TC14 | Không có tài xế phù hợp | Chuyến chuyển thành `NO_DRIVER` |
+| TC15 | Cập nhật đúng và bỏ qua trạng thái chuyến | Đúng trình tự được lưu, sai trình tự bị từ chối |
+| TC16 | Hủy trước và sau `IN_PROGRESS` | Trước được hủy, sau bị từ chối |
+| TC17 | Tài xế nhận và hoàn thành chuyến | Trạng thái chuyển `BUSY` rồi về `AVAILABLE` |
+| TC18 | Tính cước cho `MOTORBIKE` và `CAR` | Cước khớp công thức đã quy định |
+| TC19 | Thanh toán tiền mặt cho chuyến hoàn thành | Giao dịch `SUCCESS` được tạo |
+| TC20 | Mô phỏng thanh toán điện tử thành công và thất bại | Kết quả tương ứng được lưu |
+| TC21 | Thay đổi trạng thái chuyến và thanh toán | Thông báo đúng người nhận được tạo |
+| TC22 | Người dùng xem danh sách thông báo | Chỉ thông báo của tài khoản được trả về |
+| TC23 | Khách hàng và tài xế xem lịch sử | Chỉ chuyến liên quan được trả về |
+| TC24 | Đánh giá 1–5 và thử đánh giá lần hai | Lần đầu được lưu, lần hai bị từ chối |
+| TC25 | Operator tìm người dùng và chuyến | Hệ thống trả về kết quả phù hợp |
+| TC26 | Operator lọc chuyến theo trạng thái | Danh sách chỉ chứa trạng thái được chọn |
+| TC27 | Operator xem báo cáo | Số liệu và doanh thu được tính đúng |
+
+### 14.4. Kiểm tra tính đầy đủ của RTM
+
+RTM đáp ứng các điều kiện:
+
+- Mỗi Business Goal có ít nhất một Business Requirement hỗ trợ.
+- Mỗi Business Requirement được phân rã thành Functional Requirement.
+- Mỗi Functional Requirement liên kết với Use Case.
+- Mỗi Functional Requirement có Acceptance Criteria.
+- Mỗi Acceptance Criteria có Test Case tương ứng.
+- Không có chức năng ngoài phạm vi MVP xuất hiện trong RTM.
+
+### 14.5. Cách sử dụng RTM khi phát triển hệ thống
+
+Trong quá trình code:
+
+1. Chọn một FR cần triển khai.
+2. Kiểm tra Use Case và Business Rule liên quan.
+3. Xây dựng API hoặc giao diện tương ứng.
+4. Kiểm tra Acceptance Criteria.
+5. Chạy Test Case.
+6. Chỉ đánh dấu FR hoàn thành khi Test Case đạt kết quả mong đợi.
+
+### 14.6. Kết luận
+
+RTM bảo đảm toàn bộ yêu cầu của CAB System có thể được truy xuất từ mục tiêu nghiệp vụ đến chức năng, tiêu chí nghiệm thu và kiểm thử.
+
+Bảng này cũng là căn cứ để xác định những chức năng bắt buộc phải code và demo trong phiên bản MVP.
