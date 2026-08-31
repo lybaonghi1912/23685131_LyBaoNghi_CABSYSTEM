@@ -157,27 +157,7 @@ quadrantChart
 
 Các tọa độ trong biểu đồ chỉ thể hiện vị trí tương đối giữa các stakeholder, không phải kết quả của một cuộc khảo sát định lượng.
 
-### 2.5. Chiến lược quản lý Stakeholder
-
-#### Nhóm quản lý chặt chẽ
-
-Bao gồm ban lãnh đạo và nhân viên vận hành.
-
-- Tham gia xác nhận phạm vi và yêu cầu quan trọng.
-- Tham gia kiểm tra các quy trình nghiệp vụ.
-- Thường xuyên cập nhật tiến độ phát triển.
-- Tham gia kiểm thử và nghiệm thu hệ thống.
-
-#### Nhóm thường xuyên cập nhật
-
-Bao gồm khách hàng đặt xe và tài xế.
-
-- Thu thập phản hồi về chức năng đặt và nhận chuyến.
-- Cập nhật thông tin khi quy trình có thay đổi.
-- Kiểm tra tính thuận tiện của các chức năng trực tiếp sử dụng.
-- Ghi nhận những khó khăn trong quá trình đặt hoặc thực hiện chuyến.
-
-### 2.6. Kết luận
+### 2.5. Kết luận
 
 Ban lãnh đạo và nhân viên vận hành thuộc nhóm có mức quan tâm và ảnh hưởng cao nên cần được quản lý chặt chẽ trong suốt dự án.
 
