@@ -930,37 +930,601 @@ Tài khoản nhân viên vận hành được tạo sẵn trong dữ liệu hệ
 
 CHỜ CẬP NHẬT SAU
 
-### 11.5. Giải thích quan hệ trong sơ đồ
+## Bước 12. Đặc tả Use Case
 
-#### Quan hệ giữa actor và Use Case
+### 12.1. Mục đích đặc tả Use Case
 
-Đường nối liền thể hiện actor có quyền tham gia hoặc thực hiện Use Case đó.
+Đặc tả Use Case mô tả chi tiết điều kiện bắt đầu, luồng xử lý chính, các trường hợp ngoại lệ và kết quả sau khi một actor thực hiện chức năng.
 
-Ví dụ:
+Mỗi Use Case trong CAB System gồm:
 
-- Khách hàng thực hiện `UC04 – Tạo yêu cầu đặt xe`.
-- Tài xế thực hiện `UC14 – Phản hồi yêu cầu chuyến`.
-- Nhân viên vận hành thực hiện `UC17 – Xem báo cáo hoạt động`.
+- Actor chính.
+- Tiền điều kiện.
+- Sự kiện kích hoạt.
+- Luồng chính.
+- Luồng thay thế hoặc ngoại lệ.
+- Hậu điều kiện.
+- FR và Business Rule liên quan.
 
-Các đường nối trong sơ đồ không biểu diễn thứ tự thực hiện.
+---
 
-#### Quan hệ include
+### 12.2. UC01 – Đăng ký tài khoản
 
-`UC04 – Tạo yêu cầu đặt xe` bao gồm `UC05 – Tìm và phân công tài xế`.
+- **Actor chính:** Khách hàng, tài xế.
+- **Mục tiêu:** Tạo tài khoản mới để sử dụng CAB System.
+- **Tiền điều kiện:** Email đăng ký chưa tồn tại trong hệ thống.
+- **Sự kiện kích hoạt:** Người dùng chọn chức năng đăng ký.
+- **FR liên quan:** FR01.
+- **Business Rule liên quan:** RULE01.
 
-Sau khi khách hàng tạo một yêu cầu hợp lệ, hệ thống cần thực hiện quá trình tìm tài xế phù hợp. Vì vậy, `UC05` là hành vi được gọi từ `UC04`.
+#### Luồng chính
 
-### 11.6. Phạm vi của sơ đồ Use Case
+1. Người dùng chọn vai trò `CUSTOMER` hoặc `DRIVER`.
+2. Người dùng nhập họ tên, email, số điện thoại và mật khẩu.
+3. Người dùng gửi yêu cầu đăng ký.
+4. Hệ thống kiểm tra dữ liệu bắt buộc.
+5. Hệ thống kiểm tra email chưa được sử dụng.
+6. Hệ thống băm mật khẩu.
+7. Hệ thống tạo tài khoản người dùng.
+8. Nếu người đăng ký là tài xế, hệ thống tạo `DRIVER_PROFILE` với trạng thái `OFFLINE`.
+9. Hệ thống thông báo đăng ký thành công.
 
-Sơ đồ chỉ thể hiện các chức năng thuộc phạm vi MVP. Sơ đồ không bao gồm:
+#### Luồng ngoại lệ
 
-- Theo dõi GPS thời gian thực.
-- Tích hợp bản đồ thật.
-- Tích hợp cổng thanh toán thật.
-- Gửi SMS hoặc email thật.
-- Quản lý voucher và khuyến mãi.
-- Báo cáo phân tích nâng cao.
+- **EX01:** Thiếu thông tin bắt buộc → hệ thống từ chối và thông báo trường cần bổ sung.
+- **EX02:** Email đã tồn tại → hệ thống từ chối tạo tài khoản.
+- **EX03:** Vai trò không hợp lệ → hệ thống từ chối yêu cầu.
 
-### 11.7. Kết luận
+#### Hậu điều kiện
 
-Sơ đồ Use Case mô tả ba actor và các chức năng chính của CAB System. Mỗi Use Case đều liên kết với ít nhất một Functional Requirement và phải có khả năng triển khai, kiểm thử và demo trong phiên bản MVP.
+Tài khoản mới được tạo và có thể sử dụng để đăng nhập.
+
+---
+
+### 12.3. UC02 – Đăng nhập
+
+- **Actor chính:** Khách hàng, tài xế, nhân viên vận hành.
+- **Mục tiêu:** Xác thực người dùng và cấp quyền sử dụng hệ thống.
+- **Tiền điều kiện:** Tài khoản đã tồn tại.
+- **Sự kiện kích hoạt:** Người dùng gửi thông tin đăng nhập.
+- **FR liên quan:** FR02, FR03.
+- **Business Rule liên quan:** RULE01.
+
+#### Luồng chính
+
+1. Người dùng nhập email và mật khẩu.
+2. Hệ thống tìm tài khoản theo email.
+3. Hệ thống so sánh mật khẩu với mật khẩu đã băm.
+4. Hệ thống xác định vai trò của người dùng.
+5. Hệ thống tạo thông tin xác thực cho phiên đăng nhập.
+6. Hệ thống trả về thông tin người dùng và vai trò.
+7. Hệ thống thông báo đăng nhập thành công.
+
+#### Luồng ngoại lệ
+
+- Không tìm thấy email → hệ thống thông báo thông tin đăng nhập không hợp lệ.
+- Mật khẩu không đúng → hệ thống từ chối đăng nhập và ghi log.
+- Người dùng truy cập chức năng không đúng vai trò → hệ thống trả về lỗi không đủ quyền.
+
+#### Hậu điều kiện
+
+Người dùng được xác thực và có thể sử dụng các chức năng thuộc vai trò của mình.
+
+---
+
+### 12.4. UC03 – Cập nhật hồ sơ
+
+- **Actor chính:** Khách hàng, tài xế.
+- **Mục tiêu:** Cập nhật thông tin cá nhân.
+- **Tiền điều kiện:** Người dùng đã đăng nhập.
+- **Sự kiện kích hoạt:** Người dùng chọn cập nhật hồ sơ.
+- **FR liên quan:** FR04, FR05.
+
+#### Luồng chính
+
+1. Người dùng yêu cầu xem hồ sơ.
+2. Hệ thống hiển thị thông tin hiện tại.
+3. Người dùng thay đổi các thông tin được phép.
+4. Người dùng gửi yêu cầu cập nhật.
+5. Hệ thống kiểm tra dữ liệu.
+6. Hệ thống lưu thông tin mới.
+7. Hệ thống thông báo cập nhật thành công.
+
+#### Luồng ngoại lệ
+
+- Dữ liệu không hợp lệ → hệ thống từ chối cập nhật.
+- Người dùng cố cập nhật hồ sơ của người khác → hệ thống từ chối vì không đủ quyền.
+- Không tìm thấy hồ sơ → hệ thống thông báo dữ liệu không tồn tại.
+
+#### Hậu điều kiện
+
+Thông tin hồ sơ hợp lệ được cập nhật.
+
+---
+
+### 12.5. UC04 – Tạo yêu cầu đặt xe
+
+- **Actor chính:** Khách hàng.
+- **Mục tiêu:** Tạo một yêu cầu đặt xe mới.
+- **Tiền điều kiện:**
+  - Khách hàng đã đăng nhập.
+  - Khách hàng không có chuyến chưa kết thúc.
+- **Sự kiện kích hoạt:** Khách hàng chọn chức năng đặt xe.
+- **FR liên quan:** FR07, FR08.
+- **Business Rule liên quan:** RULE04, RULE10.
+
+#### Luồng chính
+
+1. Khách hàng nhập điểm đón và tọa độ giả lập.
+2. Khách hàng nhập điểm đến và tọa độ giả lập.
+3. Khách hàng chọn `MOTORBIKE` hoặc `CAR`.
+4. Khách hàng cung cấp khoảng cách chuyến đi.
+5. Khách hàng gửi yêu cầu.
+6. Hệ thống kiểm tra dữ liệu bắt buộc.
+7. Hệ thống kiểm tra khách hàng không có chuyến đang hoạt động.
+8. Hệ thống tạo `TRIP` với trạng thái `SEARCHING`.
+9. Hệ thống tạo thông báo đã tiếp nhận yêu cầu.
+10. Hệ thống kích hoạt UC05 – Tìm và phân công tài xế.
+
+#### Luồng ngoại lệ
+
+- Thiếu điểm đón, điểm đến hoặc loại xe → hệ thống từ chối yêu cầu.
+- Khoảng cách nhỏ hơn hoặc bằng 0 → hệ thống thông báo dữ liệu không hợp lệ.
+- Khách hàng đang có chuyến chưa kết thúc → hệ thống không cho phép tạo chuyến mới.
+
+#### Hậu điều kiện
+
+Một chuyến có trạng thái `SEARCHING` được tạo và quá trình tìm tài xế bắt đầu.
+
+---
+
+### 12.6. UC05 – Tìm và phân công tài xế
+
+- **Actor chính:** Khách hàng.
+- **Actor hỗ trợ:** Tài xế.
+- **Mục tiêu:** Tìm và phân công tài xế phù hợp cho chuyến.
+- **Tiền điều kiện:** Một chuyến hợp lệ đang có trạng thái `SEARCHING`.
+- **Sự kiện kích hoạt:** UC04 tạo chuyến thành công.
+- **FR liên quan:** FR10, FR11, FR12, FR13, FR14.
+- **Business Rule liên quan:** RULE02, RULE03, RULE05, RULE06.
+
+#### Luồng chính
+
+1. Hệ thống lấy danh sách tài xế có trạng thái `AVAILABLE`.
+2. Hệ thống lọc tài xế có đúng loại xe khách hàng yêu cầu.
+3. Hệ thống lọc tài xế nằm trong bán kính giả lập tối đa 5 km.
+4. Hệ thống loại những tài xế đã từ chối hoặc hết thời gian phản hồi.
+5. Hệ thống sắp xếp tài xế theo khoảng cách tăng dần.
+6. Nếu khoảng cách bằng nhau, hệ thống ưu tiên tài xế có điểm đánh giá cao hơn.
+7. Hệ thống chọn tài xế đầu tiên.
+8. Hệ thống tạo `DRIVER_OFFER` với trạng thái `PENDING`.
+9. Hệ thống đặt thời gian hết hạn phản hồi là 30 giây.
+10. Hệ thống gửi thông báo chuyến mới cho tài xế.
+11. Tài xế chấp nhận yêu cầu.
+12. Hệ thống gán tài xế cho chuyến.
+13. Hệ thống chuyển chuyến sang `ACCEPTED`.
+14. Hệ thống chuyển tài xế sang `BUSY`.
+15. Hệ thống thông báo cho khách hàng.
+
+#### Luồng thay thế và ngoại lệ
+
+- Tài xế từ chối → `DRIVER_OFFER` chuyển thành `REJECTED` và hệ thống tìm tài xế tiếp theo.
+- Tài xế không phản hồi trong 30 giây → `DRIVER_OFFER` chuyển thành `EXPIRED` và hệ thống tìm tài xế tiếp theo.
+- Không còn tài xế phù hợp → chuyến chuyển thành `NO_DRIVER` và khách hàng nhận thông báo.
+- Tài xế không còn `AVAILABLE` → hệ thống bỏ qua tài xế và chọn người tiếp theo.
+
+#### Hậu điều kiện
+
+- Thành công: chuyến có tài xế và trạng thái `ACCEPTED`.
+- Không thành công: chuyến có trạng thái `NO_DRIVER`.
+
+---
+
+### 12.7. UC06 – Theo dõi trạng thái chuyến
+
+- **Actor chính:** Khách hàng.
+- **Mục tiêu:** Xem tài xế và trạng thái hiện tại của chuyến.
+- **Tiền điều kiện:** Khách hàng đã đăng nhập và là người tạo chuyến.
+- **Sự kiện kích hoạt:** Khách hàng chọn xem chuyến hiện tại.
+- **FR liên quan:** FR09.
+
+#### Luồng chính
+
+1. Khách hàng yêu cầu xem thông tin chuyến.
+2. Hệ thống kiểm tra quyền sở hữu chuyến.
+3. Hệ thống lấy thông tin chuyến.
+4. Nếu đã phân công, hệ thống lấy thông tin cơ bản của tài xế và phương tiện.
+5. Hệ thống hiển thị trạng thái hiện tại, điểm đón, điểm đến, loại xe và tài xế.
+6. Nếu chuyến đã hoàn thành, hệ thống hiển thị cước phí.
+
+#### Luồng ngoại lệ
+
+- Không tìm thấy chuyến → hệ thống thông báo chuyến không tồn tại.
+- Khách hàng không phải người đặt chuyến → hệ thống từ chối truy cập.
+- Chuyến chưa có tài xế → hệ thống chỉ hiển thị trạng thái tìm kiếm.
+
+#### Hậu điều kiện
+
+Không làm thay đổi dữ liệu chuyến.
+
+---
+
+### 12.8. UC07 – Hủy chuyến
+
+- **Actor chính:** Khách hàng, tài xế.
+- **Mục tiêu:** Hủy chuyến trước khi chuyến bắt đầu di chuyển.
+- **Tiền điều kiện:**
+  - Actor đã đăng nhập.
+  - Actor có liên quan đến chuyến.
+  - Chuyến chưa ở trạng thái `IN_PROGRESS` hoặc `COMPLETED`.
+- **Sự kiện kích hoạt:** Khách hàng hoặc tài xế yêu cầu hủy chuyến.
+- **FR liên quan:** FR16, FR17.
+- **Business Rule liên quan:** RULE08, RULE09.
+
+#### Luồng chính
+
+1. Actor chọn chuyến cần hủy.
+2. Actor nhập lý do hủy.
+3. Hệ thống kiểm tra actor có liên quan đến chuyến.
+4. Hệ thống kiểm tra trạng thái hiện tại.
+5. Hệ thống chuyển chuyến sang `CANCELLED`.
+6. Nếu đã có tài xế, hệ thống chuyển tài xế về `AVAILABLE`.
+7. Hệ thống lưu lý do hủy.
+8. Hệ thống thông báo cho bên còn lại.
+9. Hệ thống thông báo hủy thành công.
+
+#### Luồng ngoại lệ
+
+- Chuyến đang `IN_PROGRESS` → hệ thống từ chối hủy.
+- Chuyến đã `COMPLETED`, `CANCELLED` hoặc `NO_DRIVER` → hệ thống từ chối.
+- Actor không liên quan đến chuyến → hệ thống trả về lỗi không đủ quyền.
+
+#### Hậu điều kiện
+
+Chuyến chuyển sang `CANCELLED`; tài xế được giải phóng nếu đã được phân công.
+
+---
+
+### 12.9. UC08 – Thanh toán chuyến
+
+- **Actor chính:** Khách hàng.
+- **Mục tiêu:** Thanh toán cước phí của chuyến đã hoàn thành.
+- **Tiền điều kiện:**
+  - Khách hàng đã đăng nhập.
+  - Chuyến thuộc khách hàng.
+  - Chuyến có trạng thái `COMPLETED`.
+  - Chuyến chưa có thanh toán thành công.
+- **Sự kiện kích hoạt:** Khách hàng chọn thanh toán.
+- **FR liên quan:** FR18, FR19, FR20.
+- **Business Rule liên quan:** RULE10, RULE11, RULE12, RULE13.
+
+#### Luồng chính – Thanh toán tiền mặt
+
+1. Khách hàng chọn phương thức `CASH`.
+2. Hệ thống kiểm tra điều kiện thanh toán.
+3. Hệ thống lấy cước phí từ chuyến.
+4. Hệ thống tạo `PAYMENT`.
+5. Hệ thống ghi nhận thanh toán `SUCCESS`.
+6. Hệ thống thông báo thanh toán thành công.
+
+#### Luồng thay thế – Thanh toán điện tử mô phỏng
+
+1. Khách hàng chọn `ELECTRONIC`.
+2. Hệ thống tạo giao dịch `PENDING`.
+3. Hệ thống thực hiện xử lý thanh toán mô phỏng.
+4. Nếu thành công, giao dịch chuyển thành `SUCCESS`.
+5. Nếu thất bại, giao dịch chuyển thành `FAILED`.
+6. Hệ thống lưu kết quả và thông báo cho khách hàng.
+
+#### Luồng ngoại lệ
+
+- Chuyến chưa hoàn thành → hệ thống từ chối thanh toán.
+- Chuyến đã có thanh toán thành công → hệ thống không tạo giao dịch mới.
+- Thanh toán điện tử thất bại → khách hàng có thể thử lại hoặc chuyển sang tiền mặt.
+
+#### Hậu điều kiện
+
+Kết quả thanh toán được lưu mà không làm thay đổi dữ liệu chuyến.
+
+---
+
+### 12.10. UC09 – Xem lịch sử chuyến
+
+- **Actor chính:** Khách hàng, tài xế.
+- **Mục tiêu:** Xem các chuyến liên quan đến tài khoản.
+- **Tiền điều kiện:** Actor đã đăng nhập.
+- **Sự kiện kích hoạt:** Actor chọn xem lịch sử.
+- **FR liên quan:** FR23.
+
+#### Luồng chính
+
+1. Actor yêu cầu xem lịch sử chuyến.
+2. Hệ thống xác định vai trò và mã người dùng.
+3. Với khách hàng, hệ thống tìm các chuyến theo `customer_id`.
+4. Với tài xế, hệ thống tìm các chuyến theo `driver_id`.
+5. Hệ thống sắp xếp chuyến theo thời gian mới nhất.
+6. Hệ thống trả về danh sách chuyến.
+7. Actor có thể xem chi tiết một chuyến.
+
+#### Luồng ngoại lệ
+
+- Không có chuyến → hệ thống trả về danh sách rỗng.
+- Actor cố xem lịch sử của người khác → hệ thống từ chối truy cập.
+
+#### Hậu điều kiện
+
+Không làm thay đổi dữ liệu.
+
+---
+
+### 12.11. UC10 – Đánh giá tài xế
+
+- **Actor chính:** Khách hàng.
+- **Mục tiêu:** Ghi nhận đánh giá sau chuyến đi.
+- **Tiền điều kiện:**
+  - Khách hàng đã đăng nhập.
+  - Chuyến thuộc khách hàng và đã `COMPLETED`.
+  - Chuyến chưa được đánh giá.
+- **Sự kiện kích hoạt:** Khách hàng chọn đánh giá tài xế.
+- **FR liên quan:** FR24.
+- **Business Rule liên quan:** RULE14.
+
+#### Luồng chính
+
+1. Khách hàng chọn một chuyến đã hoàn thành.
+2. Khách hàng nhập điểm từ 1 đến 5.
+3. Khách hàng có thể nhập nhận xét.
+4. Hệ thống kiểm tra quyền sở hữu chuyến.
+5. Hệ thống kiểm tra chuyến chưa được đánh giá.
+6. Hệ thống lưu `RATING`.
+7. Hệ thống tính lại điểm trung bình của tài xế.
+8. Hệ thống thông báo đánh giá thành công.
+
+#### Luồng ngoại lệ
+
+- Điểm không phải số nguyên từ 1 đến 5 → hệ thống từ chối.
+- Chuyến chưa hoàn thành → hệ thống từ chối.
+- Chuyến đã được đánh giá → hệ thống không cho đánh giá lại.
+- Khách hàng không sở hữu chuyến → hệ thống từ chối truy cập.
+
+#### Hậu điều kiện
+
+Đánh giá được lưu và điểm trung bình của tài xế được cập nhật.
+
+---
+
+### 12.12. UC11 – Xem thông báo
+
+- **Actor chính:** Khách hàng, tài xế.
+- **Mục tiêu:** Xem các thông báo liên quan đến tài khoản và chuyến.
+- **Tiền điều kiện:** Actor đã đăng nhập.
+- **Sự kiện kích hoạt:** Actor mở danh sách thông báo.
+- **FR liên quan:** FR21, FR22.
+
+#### Luồng chính
+
+1. Actor yêu cầu xem thông báo.
+2. Hệ thống xác định người dùng hiện tại.
+3. Hệ thống tìm các thông báo theo `user_id`.
+4. Hệ thống sắp xếp thông báo mới nhất trước.
+5. Hệ thống trả về nội dung, loại và thời gian thông báo.
+6. Khi actor mở một thông báo, hệ thống có thể cập nhật `is_read` thành `true`.
+
+#### Luồng ngoại lệ
+
+- Không có thông báo → hệ thống trả về danh sách rỗng.
+- Actor yêu cầu xem thông báo của người khác → hệ thống từ chối.
+
+#### Hậu điều kiện
+
+Thông báo được hiển thị; trạng thái đã đọc có thể được cập nhật.
+
+---
+
+### 12.13. UC12 – Quản lý phương tiện
+
+- **Actor chính:** Tài xế.
+- **Mục tiêu:** Tạo hoặc cập nhật phương tiện sử dụng để nhận chuyến.
+- **Tiền điều kiện:** Tài xế đã đăng nhập.
+- **Sự kiện kích hoạt:** Tài xế chọn quản lý phương tiện.
+- **FR liên quan:** FR05.
+- **Business Rule liên quan:** RULE02, RULE10.
+
+#### Luồng chính
+
+1. Tài xế yêu cầu xem phương tiện.
+2. Hệ thống hiển thị phương tiện hiện tại nếu có.
+3. Tài xế nhập loại xe, biển số và hãng xe.
+4. Tài xế gửi yêu cầu lưu.
+5. Hệ thống kiểm tra loại xe.
+6. Hệ thống kiểm tra biển số chưa thuộc phương tiện khác.
+7. Hệ thống tạo mới hoặc cập nhật `VEHICLE`.
+8. Hệ thống thông báo thành công.
+
+#### Luồng ngoại lệ
+
+- Loại xe không phải `MOTORBIKE` hoặc `CAR` → hệ thống từ chối.
+- Biển số đã tồn tại → hệ thống từ chối lưu.
+- Người dùng không có vai trò `DRIVER` → hệ thống từ chối truy cập.
+
+#### Hậu điều kiện
+
+Thông tin phương tiện hợp lệ được lưu.
+
+---
+
+### 12.14. UC13 – Cập nhật trạng thái hoạt động
+
+- **Actor chính:** Tài xế.
+- **Mục tiêu:** Bật hoặc tắt trạng thái sẵn sàng nhận chuyến.
+- **Tiền điều kiện:** Tài xế đã đăng nhập và có thông tin phương tiện.
+- **Sự kiện kích hoạt:** Tài xế yêu cầu thay đổi trạng thái.
+- **FR liên quan:** FR06.
+- **Business Rule liên quan:** RULE02, RULE09.
+
+#### Luồng chính
+
+1. Tài xế xem trạng thái hiện tại.
+2. Tài xế chọn `AVAILABLE` hoặc `OFFLINE`.
+3. Hệ thống kiểm tra hồ sơ và phương tiện.
+4. Hệ thống kiểm tra tài xế không ở trạng thái `BUSY`.
+5. Hệ thống cập nhật trạng thái.
+6. Hệ thống thông báo thành công.
+
+#### Luồng ngoại lệ
+
+- Tài xế chưa có phương tiện → không thể chuyển sang `AVAILABLE`.
+- Tài xế đang `BUSY` → không thể tự chuyển sang `OFFLINE`.
+- Trạng thái yêu cầu không hợp lệ → hệ thống từ chối cập nhật.
+
+#### Hậu điều kiện
+
+Trạng thái hoạt động của tài xế được cập nhật.
+
+---
+
+### 12.15. UC14 – Phản hồi yêu cầu chuyến
+
+- **Actor chính:** Tài xế.
+- **Mục tiêu:** Chấp nhận hoặc từ chối chuyến được đề xuất.
+- **Tiền điều kiện:**
+  - Tài xế đã đăng nhập.
+  - `DRIVER_OFFER` thuộc tài xế, đang `PENDING` và chưa hết hạn.
+  - Tài xế đang `AVAILABLE`.
+- **Sự kiện kích hoạt:** Tài xế mở một yêu cầu chuyến mới.
+- **FR liên quan:** FR12, FR13.
+- **Business Rule liên quan:** RULE02, RULE03, RULE06.
+
+#### Luồng chính – Chấp nhận
+
+1. Tài xế xem điểm đón, điểm đến, loại xe và khoảng cách.
+2. Tài xế chọn chấp nhận.
+3. Hệ thống kiểm tra đề xuất chưa hết hạn.
+4. Hệ thống kiểm tra chuyến vẫn đang `SEARCHING`.
+5. Hệ thống chuyển `DRIVER_OFFER` thành `ACCEPTED`.
+6. Hệ thống gán tài xế cho chuyến.
+7. Hệ thống chuyển chuyến thành `ACCEPTED`.
+8. Hệ thống chuyển tài xế thành `BUSY`.
+9. Hệ thống thông báo cho khách hàng.
+
+#### Luồng thay thế – Từ chối
+
+1. Tài xế chọn từ chối.
+2. Hệ thống chuyển đề xuất thành `REJECTED`.
+3. Hệ thống tiếp tục tìm tài xế khác.
+4. Tài xế hiện tại vẫn giữ trạng thái `AVAILABLE`.
+
+#### Luồng ngoại lệ
+
+- Đề xuất hết 30 giây → chuyển thành `EXPIRED`.
+- Chuyến đã được tài xế khác nhận → hệ thống từ chối phản hồi.
+- Tài xế không còn `AVAILABLE` → hệ thống từ chối chấp nhận.
+
+#### Hậu điều kiện
+
+Tài xế được phân công hoặc hệ thống tiếp tục tìm người khác.
+
+---
+
+### 12.16. UC15 – Cập nhật trạng thái chuyến
+
+- **Actor chính:** Tài xế.
+- **Mục tiêu:** Cập nhật tiến trình thực hiện chuyến.
+- **Tiền điều kiện:**
+  - Tài xế đã đăng nhập.
+  - Tài xế được phân công cho chuyến.
+- **Sự kiện kích hoạt:** Tài xế yêu cầu chuyển trạng thái chuyến.
+- **FR liên quan:** FR15, FR17, FR18.
+- **Business Rule liên quan:** RULE07, RULE09, RULE10, RULE11.
+
+#### Luồng chính
+
+1. Tài xế mở chuyến đang thực hiện.
+2. Tài xế chọn trạng thái tiếp theo.
+3. Hệ thống kiểm tra tài xế được phân công.
+4. Hệ thống kiểm tra trình tự trạng thái.
+5. Hệ thống cập nhật trạng thái chuyến.
+6. Hệ thống tạo thông báo cho khách hàng.
+7. Khi chuyển sang `COMPLETED`, hệ thống tính cước.
+8. Hệ thống lưu `fare_amount` và `completed_at`.
+9. Hệ thống chuyển tài xế về `AVAILABLE`.
+10. Hệ thống thông báo chuyến hoàn thành.
+
+#### Luồng ngoại lệ
+
+- Tài xế không được phân công → hệ thống từ chối.
+- Bỏ qua hoặc quay ngược trạng thái → hệ thống từ chối.
+- Chuyến đã kết thúc → hệ thống không cho cập nhật.
+
+#### Hậu điều kiện
+
+Trạng thái chuyến được cập nhật; nếu hoàn thành thì cước được tính và tài xế được giải phóng.
+
+---
+
+### 12.17. UC16 – Tra cứu dữ liệu vận hành
+
+- **Actor chính:** Nhân viên vận hành.
+- **Mục tiêu:** Theo dõi người dùng, tài xế, phương tiện và chuyến.
+- **Tiền điều kiện:** Nhân viên vận hành đã đăng nhập.
+- **Sự kiện kích hoạt:** Nhân viên chọn chức năng tra cứu.
+- **FR liên quan:** FR25, FR26.
+
+#### Luồng chính
+
+1. Nhân viên chọn loại dữ liệu cần xem.
+2. Hệ thống kiểm tra vai trò `OPERATOR`.
+3. Nhân viên nhập từ khóa hoặc trạng thái cần tìm.
+4. Hệ thống tìm dữ liệu phù hợp.
+5. Hệ thống hiển thị danh sách kết quả.
+6. Nhân viên chọn một kết quả.
+7. Hệ thống hiển thị thông tin chi tiết.
+
+#### Luồng ngoại lệ
+
+- Không có kết quả → hệ thống trả về danh sách rỗng.
+- Người dùng không phải `OPERATOR` → hệ thống từ chối truy cập.
+- Dữ liệu không tồn tại → hệ thống thông báo không tìm thấy.
+
+#### Hậu điều kiện
+
+Không làm thay đổi dữ liệu.
+
+---
+
+### 12.18. UC17 – Xem báo cáo hoạt động
+
+- **Actor chính:** Nhân viên vận hành.
+- **Mục tiêu:** Xem số liệu hoạt động cơ bản.
+- **Tiền điều kiện:** Nhân viên vận hành đã đăng nhập.
+- **Sự kiện kích hoạt:** Nhân viên chọn xem báo cáo.
+- **FR liên quan:** FR27.
+- **Business Rule liên quan:** RULE15.
+
+#### Luồng chính
+
+1. Nhân viên yêu cầu xem báo cáo.
+2. Hệ thống kiểm tra vai trò `OPERATOR`.
+3. Hệ thống đếm tổng số chuyến.
+4. Hệ thống đếm số chuyến `COMPLETED`.
+5. Hệ thống đếm số chuyến `CANCELLED`.
+6. Hệ thống tính tổng doanh thu từ những thanh toán `SUCCESS`.
+7. Hệ thống trả về kết quả báo cáo.
+
+#### Luồng ngoại lệ
+
+- Chưa có dữ liệu → các giá trị báo cáo bằng 0.
+- Người dùng không phải `OPERATOR` → hệ thống từ chối truy cập.
+- Không thể truy vấn dữ liệu → hệ thống thông báo lỗi và ghi log.
+
+#### Hậu điều kiện
+
+Không làm thay đổi dữ liệu hệ thống.
+
+---
+
+### 12.19. Kết luận
+
+Các đặc tả Use Case trên mô tả toàn bộ chức năng thuộc phạm vi MVP của CAB System.
+
+Mỗi Use Case đều liên kết với Functional Requirement và Business Rule tương ứng. Các luồng chính và ngoại lệ sẽ được sử dụng để xây dựng Acceptance Criteria và Test Case ở các bước tiếp theo.
