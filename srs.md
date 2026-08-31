@@ -928,73 +928,7 @@ Tài khoản nhân viên vận hành được tạo sẵn trong dữ liệu hệ
 
 ### 11.4. Sơ đồ Use Case tổng quát
 
-```mermaid
-flowchart TB
-    CUSTOMER[Khách hàng]
-    DRIVER[Tài xế]
-    OPERATOR[Nhân viên vận hành]
-
-    subgraph CAB["CAB System"]
-        direction TB
-
-        subgraph COMMON["Tài khoản và chức năng chung"]
-            UC01([UC01 - Đăng ký tài khoản])
-            UC02([UC02 - Đăng nhập])
-            UC03([UC03 - Cập nhật hồ sơ])
-            UC09([UC09 - Xem lịch sử chuyến])
-            UC11([UC11 - Xem thông báo])
-        end
-
-        subgraph BOOKING["Đặt và thực hiện chuyến"]
-            UC04([UC04 - Tạo yêu cầu đặt xe])
-            UC05([UC05 - Tìm và phân công tài xế])
-            UC06([UC06 - Theo dõi trạng thái chuyến])
-            UC07([UC07 - Hủy chuyến])
-            UC08([UC08 - Thanh toán chuyến])
-            UC10([UC10 - Đánh giá tài xế])
-            UC14([UC14 - Phản hồi yêu cầu chuyến])
-            UC15([UC15 - Cập nhật trạng thái chuyến])
-        end
-
-        subgraph DRIVER_MANAGEMENT["Quản lý tài xế"]
-            UC12([UC12 - Quản lý phương tiện])
-            UC13([UC13 - Cập nhật trạng thái hoạt động])
-        end
-
-        subgraph OPERATION["Vận hành"]
-            UC16([UC16 - Tra cứu dữ liệu vận hành])
-            UC17([UC17 - Xem báo cáo hoạt động])
-        end
-    end
-
-    CUSTOMER --- UC01
-    CUSTOMER --- UC02
-    CUSTOMER --- UC03
-    CUSTOMER --- UC04
-    CUSTOMER --- UC06
-    CUSTOMER --- UC07
-    CUSTOMER --- UC08
-    CUSTOMER --- UC09
-    CUSTOMER --- UC10
-    CUSTOMER --- UC11
-
-    DRIVER --- UC01
-    DRIVER --- UC02
-    DRIVER --- UC03
-    DRIVER --- UC07
-    DRIVER --- UC09
-    DRIVER --- UC11
-    DRIVER --- UC12
-    DRIVER --- UC13
-    DRIVER --- UC14
-    DRIVER --- UC15
-
-    OPERATOR --- UC02
-    OPERATOR --- UC16
-    OPERATOR --- UC17
-
-    UC04 -.->|include| UC05
-```
+CHỜ CẬP NHẬT SAU
 
 ### 11.5. Giải thích quan hệ trong sơ đồ
 
