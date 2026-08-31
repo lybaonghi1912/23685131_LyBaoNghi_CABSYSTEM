@@ -853,3 +853,31 @@ erDiagram
 Data Model gồm tám thực thể, đủ để lưu dữ liệu cho toàn bộ quy trình MVP từ tài khoản, đặt chuyến, tìm tài xế, thanh toán đến đánh giá và thông báo.
 
 Mô hình không tạo thêm các thực thể dành cho GPS thời gian thực, cổng thanh toán thật hoặc báo cáo nâng cao vì những nội dung đó nằm ngoài phạm vi MVP.
+
+## Bước 10. Xác định yêu cầu phi chức năng
+
+### 10.1. Khái niệm yêu cầu phi chức năng
+
+Yêu cầu phi chức năng – Non-functional Requirement – mô tả các tiêu chuẩn chất lượng và ràng buộc mà CAB System phải đáp ứng trong quá trình vận hành.
+
+Khác với Functional Requirement mô tả hệ thống thực hiện chức năng gì, Non-functional Requirement mô tả hệ thống phải thực hiện các chức năng đó như thế nào, chẳng hạn như tốc độ phản hồi, bảo mật, tính toàn vẹn dữ liệu, khả năng xử lý lỗi và khả năng bảo trì.
+
+Mỗi yêu cầu phi chức năng được ký hiệu bằng mã `NFR`. Các NFR trong tài liệu này chỉ áp dụng cho phiên bản MVP và phải có khả năng kiểm chứng trong môi trường demo.
+
+### 10.2. Danh sách yêu cầu phi chức năng
+
+| Mã | Nhóm yêu cầu | Nội dung yêu cầu | Cách kiểm chứng |
+|---|---|---|---|
+| NFR01 | Hiệu năng | Trong môi trường demo cục bộ, các API thông thường phải phản hồi trong vòng 3 giây | Gửi request bằng Postman và kiểm tra thời gian phản hồi |
+| NFR02 | Hiệu năng tìm tài xế | Với tối đa 100 tài xế thử nghiệm, quá trình lọc và lựa chọn tài xế phù hợp phải hoàn thành trong vòng 3 giây | Tạo dữ liệu tài xế giả lập và đo thời gian thực hiện API tìm tài xế |
+| NFR03 | Xác thực | Người dùng phải đăng nhập hợp lệ trước khi sử dụng các chức năng yêu cầu tài khoản | Gọi API được bảo vệ khi chưa đăng nhập và kiểm tra hệ thống từ chối |
+| NFR04 | Phân quyền | Hệ thống phải kiểm soát quyền truy cập theo ba vai trò: `CUSTOMER`, `DRIVER` và `OPERATOR` | Dùng tài khoản của từng vai trò để thử truy cập chức năng không được phép |
+| NFR05 | Bảo mật mật khẩu | Mật khẩu phải được băm một chiều trước khi lưu và không được trả về trong response của API | Kiểm tra dữ liệu trong cơ sở dữ liệu và kết quả API người dùng |
+| NFR06 | Bảo vệ dữ liệu thanh toán | Hệ thống không được lưu số thẻ, tài khoản ngân hàng hoặc dữ liệu thanh toán nhạy cảm | Kiểm tra dữ liệu `PAYMENT` chỉ chứa phương thức, số tiền, trạng thái và thời gian giao dịch |
+| NFR07 | Kiểm tra dữ liệu đầu vào | Hệ thống phải từ chối dữ liệu thiếu trường bắt buộc, sai kiểu dữ liệu hoặc không đúng giá trị quy định | Gửi request thiếu điểm đón, sai loại xe, sai điểm đánh giá hoặc sai trạng thái |
+| NFR08 | Tính toàn vẹn dữ liệu | Hệ thống phải duy trì đúng mối quan hệ giữa người dùng, tài xế, chuyến đi, thanh toán và đánh giá | Kiểm tra không thể thanh toán chuyến chưa hoàn thành hoặc đánh giá chuyến không thuộc khách hàng |
+| NFR09 | Xử lý lỗi | Thanh toán điện tử mô phỏng thất bại không được làm mất dữ liệu chuyến hoặc khiến chức năng đặt xe ngừng hoạt động | Mô phỏng thanh toán thất bại, sau đó tiếp tục xem chuyến và chuyển sang thanh toán tiền mặt |
+| NFR10 | Khả năng bảo trì | Mã nguồn Node.js phải được tổ chức thành các module riêng như xác thực, người dùng, tài xế, chuyến đi, thanh toán, thông báo và báo cáo | Kiểm tra cấu trúc thư mục và trách nhiệm của từng module trong mã nguồn |
+| NFR11 | Ghi nhật ký | Hệ thống phải ghi nhận các sự kiện quan trọng gồm đăng nhập thất bại, thay đổi trạng thái chuyến và kết quả thanh toán | Thực hiện các thao tác tương ứng và kiểm tra log của ứng dụng |
+| NFR12 | Tính nhất quán của API | Các API phải sử dụng cấu trúc response thống nhất, thể hiện trạng thái thành công, thông báo và dữ liệu trả về | Kiểm tra response của các API trong cả trường hợp thành công và thất bại |
+| NFR13 | Khả năng sử dụng | Thông báo trả về phải rõ ràng, giúp người dùng biết thao tác đã thành công hoặc nguyên nhân thất bại | Kiểm tra nội dung thông báo của các trường hợp đăng nhập sai, đặt xe thiếu dữ liệu và không tìm được tài xế |
