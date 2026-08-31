@@ -611,3 +611,245 @@ Mỗi Exception được ký hiệu bằng mã `EX`. Hệ thống phải phát h
 Business Rules xác định cách hệ thống được phép vận hành, còn Exceptions xác định cách xử lý khi luồng chính không thể tiếp tục.
 
 Các quy tắc và ngoại lệ trong bước này là cam kết triển khai của phiên bản MVP. Vì vậy, chúng chỉ bao gồm những điều kiện có thể code và demo bằng hệ thống Node.js.
+
+## Bước 9. Xây dựng Data Model
+
+### 9.1. Mục đích của Data Model
+
+Data Model xác định những dữ liệu hệ thống cần lưu trữ và mối quan hệ giữa các dữ liệu.
+
+Mỗi thực thể trong mô hình sẽ được chuyển thành bảng hoặc collection khi triển khai hệ thống.
+
+### 9.2. Danh sách thực thể
+
+| Mã | Thực thể | Mục đích |
+|---|---|---|
+| ENT01 | `USER` | Lưu tài khoản của khách hàng, tài xế và nhân viên vận hành |
+| ENT02 | `DRIVER_PROFILE` | Lưu hồ sơ nghiệp vụ, vị trí và trạng thái của tài xế |
+| ENT03 | `VEHICLE` | Lưu phương tiện mà tài xế sử dụng |
+| ENT04 | `TRIP` | Lưu yêu cầu đặt xe và quá trình thực hiện chuyến |
+| ENT05 | `DRIVER_OFFER` | Lưu những lần hệ thống đề xuất chuyến cho tài xế |
+| ENT06 | `PAYMENT` | Lưu các lần thanh toán của chuyến |
+| ENT07 | `NOTIFICATION` | Lưu thông báo gửi cho người dùng |
+| ENT08 | `RATING` | Lưu đánh giá của khách hàng dành cho tài xế |
+
+### 9.3. Mô tả thuộc tính chính
+
+#### ENT01 – USER
+
+| Thuộc tính | Kiểu dữ liệu | Ràng buộc | Ý nghĩa |
+|---|---|---|---|
+| `id` | String | Khóa chính | Mã người dùng |
+| `full_name` | String | Bắt buộc | Họ tên |
+| `email` | String | Bắt buộc, duy nhất | Email đăng nhập |
+| `password_hash` | String | Bắt buộc | Mật khẩu đã được mã hóa |
+| `phone` | String | Bắt buộc | Số điện thoại |
+| `role` | String | Bắt buộc | `CUSTOMER`, `DRIVER` hoặc `OPERATOR` |
+| `created_at` | DateTime | Tự động tạo | Thời điểm tạo tài khoản |
+
+#### ENT02 – DRIVER_PROFILE
+
+| Thuộc tính | Kiểu dữ liệu | Ràng buộc | Ý nghĩa |
+|---|---|---|---|
+| `id` | String | Khóa chính | Mã hồ sơ tài xế |
+| `user_id` | String | Khóa ngoại, duy nhất | Liên kết với `USER` |
+| `driver_status` | String | Bắt buộc | `AVAILABLE`, `BUSY` hoặc `OFFLINE` |
+| `current_latitude` | Number | Có thể cập nhật | Vĩ độ giả lập của tài xế |
+| `current_longitude` | Number | Có thể cập nhật | Kinh độ giả lập của tài xế |
+| `average_rating` | Number | Mặc định 0 | Điểm đánh giá trung bình |
+
+#### ENT03 – VEHICLE
+
+| Thuộc tính | Kiểu dữ liệu | Ràng buộc | Ý nghĩa |
+|---|---|---|---|
+| `id` | String | Khóa chính | Mã phương tiện |
+| `driver_id` | String | Khóa ngoại, duy nhất | Tài xế sử dụng phương tiện |
+| `vehicle_type` | String | Bắt buộc | `MOTORBIKE` hoặc `CAR` |
+| `license_plate` | String | Bắt buộc, duy nhất | Biển số xe |
+| `brand` | String | Không bắt buộc | Hãng hoặc tên phương tiện |
+
+#### ENT04 – TRIP
+
+| Thuộc tính | Kiểu dữ liệu | Ràng buộc | Ý nghĩa |
+|---|---|---|---|
+| `id` | String | Khóa chính | Mã chuyến |
+| `customer_id` | String | Khóa ngoại, bắt buộc | Khách hàng đặt chuyến |
+| `driver_id` | String | Khóa ngoại, có thể rỗng | Tài xế được phân công |
+| `vehicle_type` | String | Bắt buộc | Loại xe khách hàng yêu cầu |
+| `pickup_address` | String | Bắt buộc | Địa chỉ điểm đón |
+| `pickup_latitude` | Number | Bắt buộc | Vĩ độ giả lập của điểm đón |
+| `pickup_longitude` | Number | Bắt buộc | Kinh độ giả lập của điểm đón |
+| `destination_address` | String | Bắt buộc | Địa chỉ điểm đến |
+| `destination_latitude` | Number | Bắt buộc | Vĩ độ giả lập của điểm đến |
+| `destination_longitude` | Number | Bắt buộc | Kinh độ giả lập của điểm đến |
+| `distance_km` | Number | Bắt buộc | Khoảng cách chuyến đi |
+| `trip_status` | String | Bắt buộc | Trạng thái hiện tại của chuyến |
+| `fare_amount` | Number | Mặc định 0 | Cước phí chuyến đi |
+| `created_at` | DateTime | Tự động tạo | Thời điểm tạo chuyến |
+| `completed_at` | DateTime | Có thể rỗng | Thời điểm hoàn thành |
+
+#### ENT05 – DRIVER_OFFER
+
+| Thuộc tính | Kiểu dữ liệu | Ràng buộc | Ý nghĩa |
+|---|---|---|---|
+| `id` | String | Khóa chính | Mã đề xuất |
+| `trip_id` | String | Khóa ngoại, bắt buộc | Chuyến cần tìm tài xế |
+| `driver_id` | String | Khóa ngoại, bắt buộc | Tài xế nhận đề xuất |
+| `offer_status` | String | Bắt buộc | `PENDING`, `ACCEPTED`, `REJECTED` hoặc `EXPIRED` |
+| `expires_at` | DateTime | Bắt buộc | Thời điểm hết hạn phản hồi |
+| `responded_at` | DateTime | Có thể rỗng | Thời điểm tài xế phản hồi |
+
+#### ENT06 – PAYMENT
+
+| Thuộc tính | Kiểu dữ liệu | Ràng buộc | Ý nghĩa |
+|---|---|---|---|
+| `id` | String | Khóa chính | Mã giao dịch |
+| `trip_id` | String | Khóa ngoại, bắt buộc | Chuyến được thanh toán |
+| `payment_method` | String | Bắt buộc | `CASH` hoặc `ELECTRONIC` |
+| `payment_status` | String | Bắt buộc | `PENDING`, `SUCCESS` hoặc `FAILED` |
+| `amount` | Number | Bắt buộc | Số tiền thanh toán |
+| `created_at` | DateTime | Tự động tạo | Thời điểm giao dịch |
+
+#### ENT07 – NOTIFICATION
+
+| Thuộc tính | Kiểu dữ liệu | Ràng buộc | Ý nghĩa |
+|---|---|---|---|
+| `id` | String | Khóa chính | Mã thông báo |
+| `user_id` | String | Khóa ngoại, bắt buộc | Người nhận thông báo |
+| `trip_id` | String | Khóa ngoại, có thể rỗng | Chuyến liên quan |
+| `notification_type` | String | Bắt buộc | Loại thông báo |
+| `message` | String | Bắt buộc | Nội dung thông báo |
+| `is_read` | Boolean | Mặc định false | Trạng thái đã đọc |
+| `created_at` | DateTime | Tự động tạo | Thời điểm tạo thông báo |
+
+#### ENT08 – RATING
+
+| Thuộc tính | Kiểu dữ liệu | Ràng buộc | Ý nghĩa |
+|---|---|---|---|
+| `id` | String | Khóa chính | Mã đánh giá |
+| `trip_id` | String | Khóa ngoại, duy nhất | Chuyến được đánh giá |
+| `customer_id` | String | Khóa ngoại, bắt buộc | Khách hàng tạo đánh giá |
+| `driver_id` | String | Khóa ngoại, bắt buộc | Tài xế được đánh giá |
+| `score` | Number | Từ 1 đến 5 | Điểm đánh giá |
+| `comment` | String | Không bắt buộc | Nội dung nhận xét |
+| `created_at` | DateTime | Tự động tạo | Thời điểm đánh giá |
+
+### 9.4. Sơ đồ ERD
+
+```mermaid
+erDiagram
+    USER {
+        string id PK
+        string full_name
+        string email UK
+        string password_hash
+        string phone
+        string role
+        datetime created_at
+    }
+
+    DRIVER_PROFILE {
+        string id PK
+        string user_id FK
+        string driver_status
+        float current_latitude
+        float current_longitude
+        float average_rating
+    }
+
+    VEHICLE {
+        string id PK
+        string driver_id FK
+        string vehicle_type
+        string license_plate UK
+        string brand
+    }
+
+    TRIP {
+        string id PK
+        string customer_id FK
+        string driver_id FK
+        string vehicle_type
+        string pickup_address
+        float pickup_latitude
+        float pickup_longitude
+        string destination_address
+        float destination_latitude
+        float destination_longitude
+        float distance_km
+        string trip_status
+        float fare_amount
+        datetime created_at
+        datetime completed_at
+    }
+
+    DRIVER_OFFER {
+        string id PK
+        string trip_id FK
+        string driver_id FK
+        string offer_status
+        datetime expires_at
+        datetime responded_at
+    }
+
+    PAYMENT {
+        string id PK
+        string trip_id FK
+        string payment_method
+        string payment_status
+        float amount
+        datetime created_at
+    }
+
+    NOTIFICATION {
+        string id PK
+        string user_id FK
+        string trip_id FK
+        string notification_type
+        string message
+        boolean is_read
+        datetime created_at
+    }
+
+    RATING {
+        string id PK
+        string trip_id FK
+        string customer_id FK
+        string driver_id FK
+        int score
+        string comment
+        datetime created_at
+    }
+
+    USER ||--o| DRIVER_PROFILE : "có hồ sơ tài xế"
+    DRIVER_PROFILE ||--o| VEHICLE : "sử dụng"
+    USER ||--o{ TRIP : "đặt chuyến"
+    DRIVER_PROFILE o|--o{ TRIP : "thực hiện"
+    TRIP ||--o{ DRIVER_OFFER : "tạo đề xuất"
+    DRIVER_PROFILE ||--o{ DRIVER_OFFER : "nhận đề xuất"
+    TRIP ||--o{ PAYMENT : "có giao dịch"
+    USER ||--o{ NOTIFICATION : "nhận thông báo"
+    TRIP o|--o{ NOTIFICATION : "liên quan"
+    TRIP ||--o| RATING : "được đánh giá"
+    USER ||--o{ RATING : "tạo đánh giá"
+    DRIVER_PROFILE ||--o{ RATING : "nhận đánh giá"
+```
+
+### 9.5. Các ràng buộc dữ liệu quan trọng
+
+1. Email của người dùng không được trùng.
+2. Biển số xe không được trùng.
+3. Một tài khoản tài xế chỉ có một `DRIVER_PROFILE`.
+4. Trong MVP, một tài xế chỉ quản lý tối đa một phương tiện.
+5. `driver_id` trong `TRIP` được để trống khi chưa tìm được tài xế.
+6. Một chuyến có thể có nhiều `DRIVER_OFFER` vì nhiều tài xế có thể từ chối hoặc hết hạn.
+7. Một chuyến có thể có nhiều lần thanh toán thất bại nhưng chỉ có một thanh toán thành công.
+8. Một chuyến chỉ được có tối đa một đánh giá.
+9. Mật khẩu chỉ được lưu dưới dạng đã mã hóa, không lưu mật khẩu gốc.
+10. Báo cáo được tính từ dữ liệu chuyến và thanh toán, không cần thực thể báo cáo riêng.
+
+### 9.6. Kết luận
+
+Data Model gồm tám thực thể, đủ để lưu dữ liệu cho toàn bộ quy trình MVP từ tài khoản, đặt chuyến, tìm tài xế, thanh toán đến đánh giá và thông báo.
+
+Mô hình không tạo thêm các thực thể dành cho GPS thời gian thực, cổng thanh toán thật hoặc báo cáo nâng cao vì những nội dung đó nằm ngoài phạm vi MVP.
