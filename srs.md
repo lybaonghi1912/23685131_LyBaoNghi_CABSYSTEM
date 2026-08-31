@@ -89,41 +89,56 @@ CAB System mới giúp tự động hóa một phần quá trình tìm tài xế
 12. Khách hàng được đánh giá tài xế trong khoảng điểm nào?
 13. Nhân viên vận hành có được sửa hoặc hủy chuyến hay chỉ được theo dõi?
 14. Báo cáo MVP cần hiển thị những số liệu nào?
+
 ## Bước 2. Xác định Stakeholder
 
-### 2.1. Danh sách Stakeholder
+### 2.1. Khái niệm Stakeholder
+
+Stakeholder là cá nhân hoặc nhóm người có liên quan, bị ảnh hưởng hoặc có khả năng tác động đến quá trình xây dựng và vận hành hệ thống.
+
+Trong CAB System, stakeholder bao gồm người trực tiếp sử dụng hệ thống và người có quyền quyết định về yêu cầu, phạm vi và kết quả của dự án.
+
+### 2.2. Danh sách Stakeholder
 
 | Mã | Stakeholder | Vai trò và nhu cầu | Mức ảnh hưởng | Mức quan tâm | Cách quản lý |
 |---|---|---|---|---|---|
-| STK01 | Khách hàng đặt xe | Đặt chuyến, theo dõi trạng thái, thanh toán, xem lịch sử và đánh giá tài xế | Trung bình | Cao | Thường xuyên cập nhật thông tin và tiếp nhận phản hồi |
-| STK02 | Tài xế | Quản lý trạng thái hoạt động, nhận hoặc từ chối chuyến và cập nhật quá trình thực hiện chuyến | Trung bình | Cao | Thường xuyên cập nhật thông tin và tiếp nhận phản hồi |
-| STK03 | Nhân viên vận hành | Quản lý khách hàng, tài xế, phương tiện, theo dõi chuyến đi và xử lý các trường hợp bất thường | Cao | Cao | Tham gia chặt chẽ vào quá trình phân tích và kiểm thử |
-| STK04 | Ban lãnh đạo Công ty ABC | Quyết định phạm vi, theo dõi hiệu quả hoạt động và nghiệm thu hệ thống | Cao | Cao | Quản lý chặt chẽ và xác nhận các yêu cầu quan trọng |
+| STK01 | Khách hàng đặt xe | Đặt chuyến, theo dõi trạng thái, thanh toán, xem lịch sử và đánh giá tài xế | Thấp – Trung bình | Cao | Thường xuyên cập nhật thông tin và tiếp nhận phản hồi |
+| STK02 | Tài xế | Quản lý trạng thái hoạt động, nhận hoặc từ chối chuyến và cập nhật quá trình thực hiện chuyến | Thấp – Trung bình | Cao | Thường xuyên cập nhật thông tin và tiếp nhận phản hồi |
+| STK03 | Nhân viên vận hành | Quản lý khách hàng, tài xế, phương tiện, theo dõi chuyến và hỗ trợ xử lý trường hợp bất thường | Cao | Cao | Tham gia chặt chẽ vào quá trình phân tích, kiểm thử và xác nhận quy trình |
+| STK04 | Ban lãnh đạo Công ty ABC | Xác định mục tiêu, quyết định phạm vi, theo dõi hiệu quả và nghiệm thu hệ thống | Cao | Cao | Quản lý chặt chẽ và xác nhận các yêu cầu quan trọng |
 
-### 2.2. Phân tích từng Stakeholder
+### 2.3. Phân tích Stakeholder
 
 #### STK01 – Khách hàng đặt xe
 
-Khách hàng là người tạo yêu cầu đặt xe và trực tiếp sử dụng kết quả của hệ thống. Khách hàng quan tâm đến khả năng đặt xe thuận tiện, tìm được tài xế phù hợp, theo dõi trạng thái chuyến đi, biết số tiền cần thanh toán và đánh giá tài xế sau chuyến.
+Khách hàng là người trực tiếp tạo và sử dụng dịch vụ đặt xe. Khách hàng cần đăng ký, đăng nhập, tạo yêu cầu đặt xe, theo dõi trạng thái chuyến, thanh toán, xem lịch sử và đánh giá tài xế sau khi chuyến hoàn thành.
+
+Khách hàng có mức quan tâm cao vì chất lượng hệ thống ảnh hưởng trực tiếp đến trải nghiệm đặt xe. Tuy nhiên, từng khách hàng riêng lẻ không có quyền quyết định phạm vi hoặc quy tắc của dự án nên có mức ảnh hưởng thấp đến trung bình.
 
 #### STK02 – Tài xế
 
-Tài xế là người tiếp nhận và thực hiện chuyến đi. Tài xế cần có khả năng cập nhật trạng thái sẵn sàng, nhận thông báo chuyến mới, chấp nhận hoặc từ chối chuyến và cập nhật trạng thái trong quá trình thực hiện.
+Tài xế là người tiếp nhận và thực hiện chuyến đi. Tài xế cần quản lý hồ sơ, phương tiện và trạng thái hoạt động; đồng thời có thể chấp nhận, từ chối và cập nhật trạng thái chuyến.
+
+Tài xế có mức quan tâm cao vì hệ thống ảnh hưởng trực tiếp đến quá trình nhận và thực hiện chuyến. Tuy nhiên, tài xế không trực tiếp quyết định phạm vi dự án nên có mức ảnh hưởng thấp đến trung bình.
 
 #### STK03 – Nhân viên vận hành
 
-Nhân viên vận hành theo dõi hoạt động của hệ thống và hỗ trợ xử lý các trường hợp bất thường. Nhân viên cần tra cứu khách hàng, tài xế, phương tiện, chuyến đi, thanh toán và xem báo cáo hoạt động cơ bản.
+Nhân viên vận hành theo dõi hoạt động hằng ngày của hệ thống. Họ cần quản lý thông tin khách hàng, tài xế, phương tiện, chuyến đi và hỗ trợ xử lý những trường hợp bất thường.
+
+Nhân viên vận hành có mức quan tâm và ảnh hưởng cao vì họ hiểu rõ quy trình điều phối thực tế. Ý kiến của họ có thể làm thay đổi quy trình quản lý tài xế, theo dõi chuyến và xử lý sự cố.
 
 #### STK04 – Ban lãnh đạo Công ty ABC
 
-Ban lãnh đạo quyết định mục tiêu, phạm vi và quy tắc nghiệp vụ của hệ thống. Đây là stakeholder có mức ảnh hưởng cao vì có quyền xác nhận yêu cầu và nghiệm thu kết quả cuối cùng.
+Ban lãnh đạo xác định mục tiêu, phê duyệt phạm vi và nghiệm thu kết quả cuối cùng. Ban lãnh đạo cũng cần theo dõi các số liệu như số lượng chuyến, doanh thu, tỷ lệ hoàn thành và tỷ lệ hủy.
 
-### 2.3. Stakeholder Matrix
+Đây là stakeholder có mức ảnh hưởng cao nhất vì có quyền xác nhận yêu cầu và quyết định hệ thống có đáp ứng mục tiêu của doanh nghiệp hay không.
 
-Ma trận được xây dựng dựa trên hai tiêu chí:
+### 2.4. Stakeholder Matrix
 
-- Trục ngang: mức độ quan tâm đến hệ thống.
-- Trục dọc: mức độ ảnh hưởng đến quyết định của dự án.
+Stakeholder Matrix được xây dựng dựa trên hai tiêu chí:
+
+- Trục ngang thể hiện mức độ quan tâm đối với hệ thống.
+- Trục dọc thể hiện mức độ ảnh hưởng đến yêu cầu và quyết định của dự án.
 
 ```mermaid
 quadrantChart
@@ -134,14 +149,36 @@ quadrantChart
     quadrant-2 Duy trì hài lòng
     quadrant-3 Theo dõi
     quadrant-4 Thường xuyên cập nhật
-    Ban lãnh đạo: [0.90, 0.95]
-    Nhân viên vận hành: [0.85, 0.80]
-    Khách hàng đặt xe: [0.90, 0.55]
-    Tài xế: [0.85, 0.60]
+    Ban lãnh đạo: [0.90, 0.90]
+    Nhân viên vận hành: [0.82, 0.72]
+    Tài xế: [0.85, 0.40]
+    Khách hàng đặt xe: [0.90, 0.32]
 ```
 
-### 2.4. Kết luận về Stakeholder
+Các tọa độ trong biểu đồ chỉ thể hiện vị trí tương đối giữa các stakeholder, không phải kết quả của một cuộc khảo sát định lượng.
 
-Ban lãnh đạo và nhân viên vận hành cần được tham gia chặt chẽ vì họ có ảnh hưởng lớn đến phạm vi và quy tắc hoạt động của hệ thống.
+### 2.5. Chiến lược quản lý Stakeholder
 
-Khách hàng và tài xế có mức quan tâm cao vì trực tiếp sử dụng hệ thống. Nhóm phát triển cần thường xuyên thu thập phản hồi từ hai nhóm này để bảo đảm các chức năng đặt xe và thực hiện chuyến phù hợp với nhu cầu thực tế.
+#### Nhóm quản lý chặt chẽ
+
+Bao gồm ban lãnh đạo và nhân viên vận hành.
+
+- Tham gia xác nhận phạm vi và yêu cầu quan trọng.
+- Tham gia kiểm tra các quy trình nghiệp vụ.
+- Thường xuyên cập nhật tiến độ phát triển.
+- Tham gia kiểm thử và nghiệm thu hệ thống.
+
+#### Nhóm thường xuyên cập nhật
+
+Bao gồm khách hàng đặt xe và tài xế.
+
+- Thu thập phản hồi về chức năng đặt và nhận chuyến.
+- Cập nhật thông tin khi quy trình có thay đổi.
+- Kiểm tra tính thuận tiện của các chức năng trực tiếp sử dụng.
+- Ghi nhận những khó khăn trong quá trình đặt hoặc thực hiện chuyến.
+
+### 2.6. Kết luận
+
+Ban lãnh đạo và nhân viên vận hành thuộc nhóm có mức quan tâm và ảnh hưởng cao nên cần được quản lý chặt chẽ trong suốt dự án.
+
+Khách hàng và tài xế có mức quan tâm cao nhưng mức ảnh hưởng thấp hơn. Hai nhóm này cần được thường xuyên cập nhật và lấy ý kiến để bảo đảm các chức năng đặt xe và thực hiện chuyến phù hợp với nhu cầu sử dụng thực tế.
