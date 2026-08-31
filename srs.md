@@ -456,3 +456,90 @@ Trong trường hợp được phép hủy, chuyến chuyển sang trạng thái
 - Điểm bắt đầu: khách hàng gửi một yêu cầu đặt xe hợp lệ.
 - Kết thúc thành công: chuyến hoàn thành, cước phí và kết quả thanh toán được lưu.
 - Kết thúc không thành công: không tìm được tài xế hoặc chuyến bị hủy.
+
+## Bước 7. Xây dựng Functional Requirement
+
+### 7.1. Khái niệm Functional Requirement
+
+Functional Requirement là yêu cầu mô tả một chức năng hoặc hành vi cụ thể mà hệ thống phải thực hiện.
+
+Mỗi Functional Requirement được ký hiệu bằng mã `FR` và phải liên kết với một Business Requirement đã xác định ở Bước 5.
+
+### 7.2. Functional Requirement của BR01 – Quản lý tài khoản và phân quyền
+
+| Mã FR | BR liên quan | Tên chức năng | Mô tả |
+|---|---|---|---|
+| FR01 | BR01 | Đăng ký tài khoản | Hệ thống cho phép khách hàng và tài xế đăng ký tài khoản bằng các thông tin bắt buộc. |
+| FR02 | BR01 | Đăng nhập | Hệ thống kiểm tra thông tin đăng nhập và trả về kết quả xác thực cho người dùng. |
+| FR03 | BR01 | Kiểm soát quyền truy cập | Hệ thống giới hạn chức năng theo ba vai trò: khách hàng, tài xế và nhân viên vận hành. |
+
+### 7.3. Functional Requirement của BR02 – Quản lý hồ sơ và phương tiện
+
+| Mã FR | BR liên quan | Tên chức năng | Mô tả |
+|---|---|---|---|
+| FR04 | BR02 | Cập nhật hồ sơ khách hàng | Khách hàng có thể xem và cập nhật thông tin cá nhân của mình. |
+| FR05 | BR02 | Cập nhật hồ sơ tài xế và phương tiện | Tài xế có thể cập nhật thông tin cá nhân, phương tiện, biển số và loại xe. |
+| FR06 | BR02 | Cập nhật trạng thái tài xế | Tài xế có thể chuyển trạng thái hoạt động giữa `AVAILABLE` và `OFFLINE`. Hệ thống có thể chuyển tài xế sang `BUSY` khi tài xế nhận chuyến. |
+
+### 7.4. Functional Requirement của BR03 – Tạo và theo dõi yêu cầu đặt xe
+
+| Mã FR | BR liên quan | Tên chức năng | Mô tả |
+|---|---|---|---|
+| FR07 | BR03 | Tạo yêu cầu đặt xe | Khách hàng có thể tạo yêu cầu bằng cách nhập điểm đón, điểm đến và chọn loại xe. |
+| FR08 | BR03 | Kiểm tra và lưu yêu cầu | Hệ thống kiểm tra dữ liệu bắt buộc, tạo mã chuyến và lưu chuyến với trạng thái `SEARCHING`. |
+| FR09 | BR03 | Theo dõi trạng thái chuyến | Khách hàng có thể xem tài xế được phân công và trạng thái hiện tại của chuyến. |
+
+### 7.5. Functional Requirement của BR04 – Tìm kiếm và phân công tài xế
+
+| Mã FR | BR liên quan | Tên chức năng | Mô tả |
+|---|---|---|---|
+| FR10 | BR04 | Lọc tài xế phù hợp | Hệ thống chỉ tìm những tài xế có trạng thái `AVAILABLE` và có loại xe phù hợp với yêu cầu. |
+| FR11 | BR04 | Sắp xếp tài xế | Hệ thống sắp xếp danh sách tài xế phù hợp theo khoảng cách giả lập; nếu khoảng cách bằng nhau thì ưu tiên điểm đánh giá cao hơn. |
+| FR12 | BR04 | Gửi yêu cầu chuyến cho tài xế | Hệ thống gửi yêu cầu chuyến cho tài xế được lựa chọn và lưu trạng thái đề xuất. |
+| FR13 | BR04 | Xử lý tài xế chấp nhận hoặc từ chối | Nếu tài xế chấp nhận, hệ thống phân công tài xế cho chuyến; nếu tài xế từ chối hoặc không phản hồi trong thời gian quy định, hệ thống chuyển sang tài xế tiếp theo. |
+| FR14 | BR04 | Xử lý không tìm được tài xế | Nếu không còn tài xế phù hợp, hệ thống kết thúc quá trình tìm kiếm và thông báo cho khách hàng. |
+
+### 7.6. Functional Requirement của BR05 – Quản lý quá trình thực hiện chuyến
+
+| Mã FR | BR liên quan | Tên chức năng | Mô tả |
+|---|---|---|---|
+| FR15 | BR05 | Cập nhật trạng thái chuyến | Tài xế có thể cập nhật chuyến lần lượt qua các trạng thái `ACCEPTED`, `ARRIVED`, `IN_PROGRESS` và `COMPLETED`. |
+| FR16 | BR05 | Hủy chuyến | Khách hàng hoặc tài xế có thể hủy chuyến khi đáp ứng quy tắc hủy của hệ thống. |
+| FR17 | BR05 | Đồng bộ trạng thái tài xế | Khi nhận chuyến, tài xế chuyển sang `BUSY`; khi chuyến hoàn thành hoặc bị hủy, tài xế chuyển về `AVAILABLE`. |
+
+### 7.7. Functional Requirement của BR06 – Tính cước và thanh toán
+
+| Mã FR | BR liên quan | Tên chức năng | Mô tả |
+|---|---|---|---|
+| FR18 | BR06 | Tính cước chuyến đi | Khi chuyến hoàn thành, hệ thống tính cước dựa trên phí mở cửa, loại xe và khoảng cách chuyến đi. |
+| FR19 | BR06 | Ghi nhận thanh toán tiền mặt | Hệ thống cho phép ghi nhận khách hàng thanh toán bằng tiền mặt và cập nhật trạng thái thanh toán. |
+| FR20 | BR06 | Mô phỏng thanh toán điện tử | Hệ thống mô phỏng giao dịch điện tử thành công hoặc thất bại, lưu kết quả và cho phép thử lại hoặc chuyển sang tiền mặt. |
+
+### 7.8. Functional Requirement của BR07 – Quản lý thông báo
+
+| Mã FR | BR liên quan | Tên chức năng | Mô tả |
+|---|---|---|---|
+| FR21 | BR07 | Tạo thông báo | Hệ thống tạo thông báo khi tiếp nhận yêu cầu, tìm được tài xế, không tìm được tài xế, chuyến thay đổi trạng thái và thanh toán có kết quả. |
+| FR22 | BR07 | Xem thông báo | Khách hàng và tài xế có thể xem danh sách thông báo liên quan đến tài khoản của mình. |
+
+### 7.9. Functional Requirement của BR08 – Lịch sử và đánh giá
+
+| Mã FR | BR liên quan | Tên chức năng | Mô tả |
+|---|---|---|---|
+| FR23 | BR08 | Xem lịch sử chuyến | Khách hàng và tài xế có thể xem danh sách và thông tin chi tiết các chuyến liên quan đến tài khoản của mình. |
+| FR24 | BR08 | Đánh giá tài xế | Khách hàng có thể đánh giá tài xế một lần sau khi chuyến hoàn thành. Hệ thống lưu điểm đánh giá và cập nhật điểm trung bình của tài xế. |
+
+### 7.10. Functional Requirement của BR09 – Vận hành và báo cáo
+
+| Mã FR | BR liên quan | Tên chức năng | Mô tả |
+|---|---|---|---|
+| FR25 | BR09 | Tra cứu dữ liệu vận hành | Nhân viên vận hành có thể xem và tìm kiếm khách hàng, tài xế, phương tiện và chuyến đi. |
+| FR26 | BR09 | Theo dõi chuyến đi | Nhân viên vận hành có thể xem các chuyến đang tìm tài xế, đang thực hiện, đã hoàn thành hoặc đã hủy. |
+| FR27 | BR09 | Xem báo cáo cơ bản | Hệ thống thống kê tổng số chuyến, số chuyến hoàn thành, số chuyến bị hủy và tổng doanh thu. |
+
+### 7.11. Nguyên tắc triển khai Functional Requirement
+
+- Mỗi FR phải được thể hiện bằng API hoặc chức năng trên giao diện.
+- Mỗi FR phải có ít nhất một Acceptance Criteria và Test Case tương ứng.
+- Không bổ sung chức năng nằm ngoài phạm vi MVP nếu không thể triển khai và demo.
+- Các yêu cầu về tốc độ, bảo mật và độ ổn định sẽ được trình bày ở phần Non-functional Requirement.
