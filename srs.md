@@ -356,3 +356,103 @@ Thanh toán điện tử và thông báo trong phiên bản MVP chỉ được t
 Chín Business Requirement trên bao phủ quy trình chính của CAB System, từ quản lý tài khoản, đặt xe, tìm tài xế, thực hiện chuyến, thanh toán đến đánh giá và báo cáo.
 
 Mỗi Business Requirement là một cam kết thuộc phạm vi MVP và phải được phân rã thành chức năng có thể triển khai, kiểm thử và demo.
+
+## Bước 6. Xây dựng Business Process
+
+### 6.1. Khái niệm Business Process
+
+Business Process mô tả trình tự các hoạt động nghiệp vụ được thực hiện để đạt được một kết quả cụ thể.
+
+Trong CAB System, quy trình chính bắt đầu khi khách hàng tạo yêu cầu đặt xe và kết thúc khi chuyến được hoàn thành, thanh toán và đánh giá.
+
+Mỗi Business Process được ký hiệu bằng mã `BP`.
+
+### 6.2. Danh sách Business Process
+
+| Mã | Tên quy trình | Người tham gia | Mô tả kết quả | BR liên quan |
+|---|---|---|---|---|
+| BP01 | Quản lý tài khoản và trạng thái tài xế | Khách hàng, tài xế, nhân viên vận hành | Người dùng đăng nhập được vào hệ thống; tài xế cập nhật trạng thái sẵn sàng nhận chuyến | BR01, BR02 |
+| BP02 | Tạo yêu cầu và tìm tài xế | Khách hàng, tài xế | Khách hàng tạo yêu cầu và hệ thống tìm được tài xế phù hợp hoặc thông báo không có tài xế | BR03, BR04, BR07 |
+| BP03 | Thực hiện chuyến đi | Khách hàng, tài xế | Tài xế chấp nhận chuyến và cập nhật chuyến đến khi hoàn thành hoặc bị hủy | BR05, BR07 |
+| BP04 | Tính cước và thanh toán | Khách hàng, tài xế | Hệ thống tính cước và lưu kết quả thanh toán | BR06, BR07 |
+| BP05 | Đánh giá và theo dõi hoạt động | Khách hàng, nhân viên vận hành | Khách hàng đánh giá tài xế; nhân viên vận hành tra cứu lịch sử và xem báo cáo | BR08, BR09 |
+
+### 6.3. Quy trình nghiệp vụ tổng quát
+
+```mermaid
+flowchart TD
+    A[Khách hàng tạo yêu cầu đặt xe] --> B[Hệ thống kiểm tra thông tin]
+    B --> C[Tìm tài xế phù hợp]
+    C --> D{Có tài xế phù hợp?}
+
+    D -- Không --> E[Thông báo không tìm được tài xế]
+    D -- Có --> F[Gửi yêu cầu cho tài xế]
+    F --> G{Tài xế chấp nhận?}
+
+    G -- Không --> H[Loại tài xế khỏi danh sách đề xuất]
+    H --> C
+
+    G -- Có --> I[Phân công tài xế]
+    I --> J[Tài xế thực hiện chuyến]
+    J --> K[Hoàn thành chuyến]
+    K --> L[Hệ thống tính cước]
+    L --> M[Khách hàng thanh toán]
+    M --> N[Lưu kết quả thanh toán]
+    N --> O[Khách hàng đánh giá tài xế]
+```
+
+### 6.4. Mô tả quy trình chính
+
+#### Giai đoạn 1 – Chuẩn bị
+
+1. Khách hàng đăng nhập vào hệ thống.
+2. Tài xế đăng nhập và chuyển trạng thái sang `AVAILABLE`.
+3. Hệ thống lưu trạng thái hoạt động hiện tại của tài xế.
+
+#### Giai đoạn 2 – Tạo yêu cầu đặt xe
+
+1. Khách hàng nhập điểm đón.
+2. Khách hàng nhập điểm đến.
+3. Khách hàng chọn loại xe.
+4. Khách hàng gửi yêu cầu đặt xe.
+5. Hệ thống kiểm tra tính đầy đủ của thông tin.
+6. Hệ thống tạo chuyến với trạng thái `SEARCHING`.
+
+#### Giai đoạn 3 – Tìm và phân công tài xế
+
+1. Hệ thống tìm tài xế có trạng thái `AVAILABLE`.
+2. Hệ thống chỉ chọn tài xế có loại xe phù hợp.
+3. Hệ thống sắp xếp các tài xế theo tiêu chí ưu tiên.
+4. Hệ thống gửi yêu cầu chuyến cho tài xế được chọn.
+5. Tài xế chấp nhận hoặc từ chối yêu cầu.
+6. Nếu tài xế từ chối, hệ thống tiếp tục tìm tài xế khác.
+7. Nếu tài xế chấp nhận, hệ thống phân công tài xế cho chuyến.
+8. Nếu không còn tài xế phù hợp, hệ thống thông báo cho khách hàng.
+
+#### Giai đoạn 4 – Thực hiện chuyến
+
+Sau khi tài xế chấp nhận, chuyến được cập nhật theo trình tự:
+
+`ACCEPTED → ARRIVED → IN_PROGRESS → COMPLETED`
+
+Trong trường hợp được phép hủy, chuyến chuyển sang trạng thái `CANCELLED`.
+
+#### Giai đoạn 5 – Tính cước và thanh toán
+
+1. Khi chuyến hoàn thành, hệ thống tính cước.
+2. Khách hàng chọn tiền mặt hoặc thanh toán điện tử mô phỏng.
+3. Hệ thống lưu phương thức và kết quả thanh toán.
+4. Nếu thanh toán điện tử thất bại, khách hàng có thể thử lại hoặc chuyển sang tiền mặt.
+
+#### Giai đoạn 6 – Sau chuyến đi
+
+1. Chuyến hoàn thành được lưu vào lịch sử.
+2. Khách hàng có thể đánh giá tài xế.
+3. Tài xế chuyển về trạng thái `AVAILABLE`.
+4. Nhân viên vận hành có thể tra cứu chuyến và xem báo cáo cơ bản.
+
+### 6.5. Điểm bắt đầu và kết thúc quy trình
+
+- Điểm bắt đầu: khách hàng gửi một yêu cầu đặt xe hợp lệ.
+- Kết thúc thành công: chuyến hoàn thành, cước phí và kết quả thanh toán được lưu.
+- Kết thúc không thành công: không tìm được tài xế hoặc chuyến bị hủy.
