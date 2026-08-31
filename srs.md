@@ -881,3 +881,152 @@ Mỗi yêu cầu phi chức năng được ký hiệu bằng mã `NFR`. Các NFR
 | NFR11 | Ghi nhật ký | Hệ thống phải ghi nhận các sự kiện quan trọng gồm đăng nhập thất bại, thay đổi trạng thái chuyến và kết quả thanh toán | Thực hiện các thao tác tương ứng và kiểm tra log của ứng dụng |
 | NFR12 | Tính nhất quán của API | Các API phải sử dụng cấu trúc response thống nhất, thể hiện trạng thái thành công, thông báo và dữ liệu trả về | Kiểm tra response của các API trong cả trường hợp thành công và thất bại |
 | NFR13 | Khả năng sử dụng | Thông báo trả về phải rõ ràng, giúp người dùng biết thao tác đã thành công hoặc nguyên nhân thất bại | Kiểm tra nội dung thông báo của các trường hợp đăng nhập sai, đặt xe thiếu dữ liệu và không tìm được tài xế |
+
+## Bước 11. Xây dựng sơ đồ Use Case
+
+### 11.1. Khái niệm Use Case
+
+Use Case mô tả một mục tiêu mà actor muốn thực hiện thông qua hệ thống.
+
+Sơ đồ Use Case thể hiện:
+
+- Những actor tương tác với CAB System.
+- Những chức năng mỗi actor được sử dụng.
+- Mối quan hệ giữa các chức năng.
+
+### 11.2. Danh sách Actor
+
+| Mã | Actor | Mô tả |
+|---|---|---|
+| ACT01 | Khách hàng | Người tạo yêu cầu đặt xe, theo dõi chuyến, thanh toán và đánh giá tài xế |
+| ACT02 | Tài xế | Người tiếp nhận yêu cầu và thực hiện chuyến đi |
+| ACT03 | Nhân viên vận hành | Người theo dõi dữ liệu hoạt động và xem báo cáo |
+
+Tài khoản nhân viên vận hành được tạo sẵn trong dữ liệu hệ thống MVP. Chức năng tự đăng ký chỉ áp dụng cho khách hàng và tài xế.
+
+### 11.3. Danh sách Use Case
+
+| Mã | Tên Use Case | Actor chính | FR liên quan |
+|---|---|---|---|
+| UC01 | Đăng ký tài khoản | Khách hàng, tài xế | FR01 |
+| UC02 | Đăng nhập | Khách hàng, tài xế, nhân viên vận hành | FR02, FR03 |
+| UC03 | Cập nhật hồ sơ | Khách hàng, tài xế | FR04, FR05 |
+| UC04 | Tạo yêu cầu đặt xe | Khách hàng | FR07, FR08 |
+| UC05 | Tìm và phân công tài xế | Hệ thống | FR10, FR11, FR12, FR13, FR14 |
+| UC06 | Theo dõi trạng thái chuyến | Khách hàng | FR09 |
+| UC07 | Hủy chuyến | Khách hàng, tài xế | FR16, FR17 |
+| UC08 | Thanh toán chuyến | Khách hàng | FR18, FR19, FR20 |
+| UC09 | Xem lịch sử chuyến | Khách hàng, tài xế | FR23 |
+| UC10 | Đánh giá tài xế | Khách hàng | FR24 |
+| UC11 | Xem thông báo | Khách hàng, tài xế | FR21, FR22 |
+| UC12 | Quản lý phương tiện | Tài xế | FR05 |
+| UC13 | Cập nhật trạng thái hoạt động | Tài xế | FR06 |
+| UC14 | Phản hồi yêu cầu chuyến | Tài xế | FR12, FR13 |
+| UC15 | Cập nhật trạng thái chuyến | Tài xế | FR15, FR17, FR18 |
+| UC16 | Tra cứu dữ liệu vận hành | Nhân viên vận hành | FR25, FR26 |
+| UC17 | Xem báo cáo hoạt động | Nhân viên vận hành | FR27 |
+
+### 11.4. Sơ đồ Use Case tổng quát
+
+```mermaid
+flowchart TB
+    CUSTOMER[Khách hàng]
+    DRIVER[Tài xế]
+    OPERATOR[Nhân viên vận hành]
+
+    subgraph CAB["CAB System"]
+        direction TB
+
+        subgraph COMMON["Tài khoản và chức năng chung"]
+            UC01([UC01 - Đăng ký tài khoản])
+            UC02([UC02 - Đăng nhập])
+            UC03([UC03 - Cập nhật hồ sơ])
+            UC09([UC09 - Xem lịch sử chuyến])
+            UC11([UC11 - Xem thông báo])
+        end
+
+        subgraph BOOKING["Đặt và thực hiện chuyến"]
+            UC04([UC04 - Tạo yêu cầu đặt xe])
+            UC05([UC05 - Tìm và phân công tài xế])
+            UC06([UC06 - Theo dõi trạng thái chuyến])
+            UC07([UC07 - Hủy chuyến])
+            UC08([UC08 - Thanh toán chuyến])
+            UC10([UC10 - Đánh giá tài xế])
+            UC14([UC14 - Phản hồi yêu cầu chuyến])
+            UC15([UC15 - Cập nhật trạng thái chuyến])
+        end
+
+        subgraph DRIVER_MANAGEMENT["Quản lý tài xế"]
+            UC12([UC12 - Quản lý phương tiện])
+            UC13([UC13 - Cập nhật trạng thái hoạt động])
+        end
+
+        subgraph OPERATION["Vận hành"]
+            UC16([UC16 - Tra cứu dữ liệu vận hành])
+            UC17([UC17 - Xem báo cáo hoạt động])
+        end
+    end
+
+    CUSTOMER --- UC01
+    CUSTOMER --- UC02
+    CUSTOMER --- UC03
+    CUSTOMER --- UC04
+    CUSTOMER --- UC06
+    CUSTOMER --- UC07
+    CUSTOMER --- UC08
+    CUSTOMER --- UC09
+    CUSTOMER --- UC10
+    CUSTOMER --- UC11
+
+    DRIVER --- UC01
+    DRIVER --- UC02
+    DRIVER --- UC03
+    DRIVER --- UC07
+    DRIVER --- UC09
+    DRIVER --- UC11
+    DRIVER --- UC12
+    DRIVER --- UC13
+    DRIVER --- UC14
+    DRIVER --- UC15
+
+    OPERATOR --- UC02
+    OPERATOR --- UC16
+    OPERATOR --- UC17
+
+    UC04 -.->|include| UC05
+```
+
+### 11.5. Giải thích quan hệ trong sơ đồ
+
+#### Quan hệ giữa actor và Use Case
+
+Đường nối liền thể hiện actor có quyền tham gia hoặc thực hiện Use Case đó.
+
+Ví dụ:
+
+- Khách hàng thực hiện `UC04 – Tạo yêu cầu đặt xe`.
+- Tài xế thực hiện `UC14 – Phản hồi yêu cầu chuyến`.
+- Nhân viên vận hành thực hiện `UC17 – Xem báo cáo hoạt động`.
+
+Các đường nối trong sơ đồ không biểu diễn thứ tự thực hiện.
+
+#### Quan hệ include
+
+`UC04 – Tạo yêu cầu đặt xe` bao gồm `UC05 – Tìm và phân công tài xế`.
+
+Sau khi khách hàng tạo một yêu cầu hợp lệ, hệ thống cần thực hiện quá trình tìm tài xế phù hợp. Vì vậy, `UC05` là hành vi được gọi từ `UC04`.
+
+### 11.6. Phạm vi của sơ đồ Use Case
+
+Sơ đồ chỉ thể hiện các chức năng thuộc phạm vi MVP. Sơ đồ không bao gồm:
+
+- Theo dõi GPS thời gian thực.
+- Tích hợp bản đồ thật.
+- Tích hợp cổng thanh toán thật.
+- Gửi SMS hoặc email thật.
+- Quản lý voucher và khuyến mãi.
+- Báo cáo phân tích nâng cao.
+
+### 11.7. Kết luận
+
+Sơ đồ Use Case mô tả ba actor và các chức năng chính của CAB System. Mỗi Use Case đều liên kết với ít nhất một Functional Requirement và phải có khả năng triển khai, kiểm thử và demo trong phiên bản MVP.
