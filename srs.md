@@ -231,3 +231,76 @@ Các Business Goal trên chỉ áp dụng cho phạm vi MVP. Dự án không cam
 - Phân tích dữ liệu và dự báo hoạt động nâng cao.
 
 Những nội dung này chỉ có thể được xem xét trong các phiên bản phát triển sau.
+
+## Bước 4. Xác định phạm vi hệ thống
+
+### 4.1. Mục tiêu xác định phạm vi
+
+CAB System được phát triển bởi một cá nhân trong thời gian 7 tuần. Vì vậy, phiên bản MVP tập trung vào quy trình đặt xe cơ bản có thể triển khai và demo hoàn chỉnh bằng Node.js.
+
+Mọi chức năng nằm trong phạm vi phải được phân tích thành yêu cầu, triển khai trên hệ thống và có tình huống kiểm thử tương ứng.
+
+### 4.2. Phạm vi triển khai của MVP
+
+| Mã | Module | Chức năng trong phạm vi | Cách kiểm chứng khi demo |
+|---|---|---|---|
+| SC01 | Tài khoản và phân quyền | Đăng ký, đăng nhập và kiểm soát quyền theo ba vai trò: khách hàng, tài xế và nhân viên vận hành | Đăng nhập bằng từng tài khoản và kiểm tra chức năng được phép sử dụng |
+| SC02 | Quản lý khách hàng | Xem và cập nhật thông tin cá nhân; xem lịch sử chuyến đi | Cập nhật hồ sơ và tra cứu các chuyến của một khách hàng |
+| SC03 | Quản lý tài xế và phương tiện | Xem, cập nhật hồ sơ tài xế, thông tin phương tiện, loại xe và trạng thái hoạt động | Tài xế cập nhật phương tiện và chuyển trạng thái `AVAILABLE`, `BUSY` hoặc `OFFLINE` |
+| SC04 | Đặt chuyến | Khách hàng nhập điểm đón, điểm đến, chọn loại xe và gửi yêu cầu đặt chuyến | Tạo một chuyến mới và kiểm tra dữ liệu được lưu |
+| SC05 | Tìm và phân công tài xế | Tìm tài xế đang sẵn sàng, đúng loại xe và ưu tiên theo tiêu chí đơn giản | Chuẩn bị nhiều tài xế giả lập và kiểm tra tài xế phù hợp được lựa chọn |
+| SC06 | Tiếp nhận chuyến | Tài xế xem yêu cầu mới, chấp nhận hoặc từ chối chuyến | Tài xế A từ chối và hệ thống chuyển yêu cầu sang tài xế B |
+| SC07 | Quản lý trạng thái chuyến | Cập nhật các trạng thái tìm tài xế, đã chấp nhận, đã đến, đang thực hiện, hoàn thành hoặc đã hủy | Thực hiện một chuyến từ khi tạo đến khi hoàn thành |
+| SC08 | Tính cước | Tính cước theo phí mở cửa, loại xe và khoảng cách chuyến đi | Nhập thông tin chuyến và kiểm tra số tiền được tính theo công thức |
+| SC09 | Thanh toán | Ghi nhận thanh toán tiền mặt và mô phỏng kết quả thanh toán điện tử thành công hoặc thất bại | Thực hiện thanh toán và kiểm tra trạng thái giao dịch |
+| SC10 | Thông báo trong hệ thống | Tạo và lưu thông báo liên quan đến kết quả tìm tài xế, trạng thái chuyến và thanh toán | Mở danh sách thông báo của khách hàng hoặc tài xế |
+| SC11 | Đánh giá tài xế | Cho phép khách hàng đánh giá tài xế sau khi chuyến hoàn thành | Hoàn thành chuyến và gửi điểm đánh giá |
+| SC12 | Vận hành và báo cáo | Nhân viên vận hành xem khách hàng, tài xế, chuyến đi và báo cáo cơ bản | Hiển thị tổng chuyến, chuyến hoàn thành, chuyến hủy và tổng doanh thu |
+
+### 4.3. Quy trình nghiệp vụ nằm trong phạm vi
+
+Phiên bản MVP tập trung vào một quy trình hoàn chỉnh:
+
+1. Khách hàng đăng nhập.
+2. Khách hàng tạo yêu cầu đặt xe.
+3. Hệ thống tìm tài xế phù hợp.
+4. Tài xế chấp nhận hoặc từ chối chuyến.
+5. Nếu tài xế từ chối, hệ thống tìm tài xế tiếp theo.
+6. Tài xế cập nhật trạng thái thực hiện chuyến.
+7. Khi chuyến hoàn thành, hệ thống tính cước.
+8. Khách hàng thanh toán.
+9. Khách hàng đánh giá tài xế.
+10. Nhân viên vận hành có thể tra cứu chuyến và xem báo cáo.
+
+### 4.4. Phạm vi ngoài MVP
+
+| Mã | Nội dung ngoài phạm vi | Lý do |
+|---|---|---|
+| OS01 | Theo dõi GPS thời gian thực | Yêu cầu bản đồ, thiết bị định vị và xử lý dữ liệu liên tục |
+| OS02 | Hiển thị xe di chuyển trực tiếp trên bản đồ | Không cần thiết để chứng minh quy trình đặt xe cơ bản |
+| OS03 | Tích hợp Google Maps hoặc dịch vụ bản đồ trả phí | MVP sử dụng địa điểm hoặc tọa độ giả lập |
+| OS04 | Tích hợp ngân hàng, ví điện tử hoặc cổng thanh toán thật | MVP chỉ mô phỏng kết quả thanh toán điện tử |
+| OS05 | Gửi SMS, email hoặc push notification thật | MVP chỉ lưu và hiển thị thông báo trong hệ thống |
+| OS06 | Thuật toán AI điều phối tài xế | MVP sử dụng quy tắc tìm tài xế đơn giản |
+| OS07 | Giá cước động theo thời tiết hoặc giờ cao điểm | MVP sử dụng công thức tính cước cố định theo loại xe |
+| OS08 | Khuyến mãi, voucher và ví nội bộ | Không thuộc quy trình đặt xe cốt lõi |
+| OS09 | Quản lý nhiều thành phố hoặc nhiều quốc gia | MVP chỉ sử dụng một khu vực dữ liệu giả lập |
+| OS10 | Báo cáo và dự báo dữ liệu nâng cao | MVP chỉ cung cấp các số liệu tổng hợp cơ bản |
+| OS11 | Triển khai microservice trên nhiều máy chủ | Các service được tổ chức thành module trong một ứng dụng Node.js |
+| OS12 | Tự động mở rộng hạ tầng khi tải tăng | Không phù hợp với phạm vi và môi trường demo của dự án cá nhân |
+
+### 4.5. Các quy ước đơn giản hóa trong MVP
+
+- Vị trí khách hàng và tài xế được nhập hoặc tạo bằng dữ liệu giả lập.
+- Khoảng cách được nhập sẵn hoặc tính bằng công thức đơn giản.
+- Hệ thống chỉ hỗ trợ một số loại xe cơ bản.
+- Việc tìm tài xế dựa trên trạng thái, loại xe và khoảng cách giả lập.
+- Thanh toán điện tử chỉ mô phỏng kết quả thành công hoặc thất bại.
+- Thông báo được lưu trong cơ sở dữ liệu và hiển thị trong hệ thống.
+- Báo cáo chỉ gồm các phép đếm và tính tổng cơ bản.
+
+### 4.6. Kết luận phạm vi
+
+Phạm vi trên bảo đảm CAB System có thể minh họa một quy trình đặt xe hoàn chỉnh nhưng vẫn phù hợp với khả năng triển khai của một cá nhân trong thời gian 7 tuần.
+
+Các chức năng trong phạm vi sẽ tiếp tục được chuyển thành Business Requirement, Functional Requirement, Use Case, Acceptance Criteria và Test Case. Các nội dung ngoài phạm vi không được xem là cam kết triển khai trong phiên bản MVP.
