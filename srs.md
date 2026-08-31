@@ -606,18 +606,7 @@ Mỗi Exception được ký hiệu bằng mã `EX`. Hệ thống phải phát h
 | EX09 | Đánh giá không hợp lệ | Từ chối nếu chuyến chưa hoàn thành, điểm không thuộc khoảng 1–5 hoặc khách hàng đã đánh giá trước đó | FR24 |
 | EX10 | Người dùng không có quyền truy cập | Từ chối thao tác và trả về thông báo không đủ quyền | FR03 |
 
-### 8.6. Các tình huống ngoại lệ cần demo
-
-Phiên bản MVP phải demo ít nhất các tình huống sau:
-
-1. Tài xế đầu tiên từ chối và hệ thống chuyển sang tài xế tiếp theo.
-2. Không tìm được tài xế phù hợp.
-3. Người dùng cập nhật sai trình tự trạng thái chuyến.
-4. Khách hàng cố gắng hủy chuyến sau khi chuyến đã bắt đầu.
-5. Thanh toán điện tử mô phỏng thất bại.
-6. Khách hàng cố gắng đánh giá một chuyến hai lần.
-
-### 8.7. Kết luận
+### 8.6. Kết luận
 
 Business Rules xác định cách hệ thống được phép vận hành, còn Exceptions xác định cách xử lý khi luồng chính không thể tiếp tục.
 
