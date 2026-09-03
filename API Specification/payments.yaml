@@ -1,65 +1,266 @@
-tripPayments:
+openapi: 3.0.3
+info:
+  title: CAB System - Payments API
+  version: 1.0.0
+  description: 'API Specification cho CAB System MVP, được xây dựng từ Functional Requirement
+
+    FR01–FR27 và Acceptance Criteria AC01–AC27 trong `srs.md`.
+
+
+    Các xử lý tự động như lọc và sắp xếp tài xế, tạo đề xuất chuyến, tính cước,
+
+    đồng bộ trạng thái tài xế và tạo thông báo được thực hiện bên trong các API
+
+    nghiệp vụ liên quan, không tách thành API công khai riêng.
+
+    '
+servers:
+- url: http://localhost:3000/api/v1
+  description: Máy chủ phát triển cục bộ
+security:
+- bearerAuth: []
+tags:
+- name: Payments
+  description: Thanh toán tiền mặt và điện tử mô phỏng
+paths:
+  /trips/{tripId}/payments:
+    parameters:
+    - $ref: '#/components/parameters/TripId'
+    post:
+      tags:
+      - Payments
+      summary: Thanh toán chuyến đi
+      description: 'Chỉ khách hàng sở hữu chuyến `COMPLETED` mới được thanh toán.
+
+
+        - `CASH`: tạo giao dịch `SUCCESS` với số tiền bằng cước chuyến.
+
+        - `ELECTRONIC`: mô phỏng kết quả `SUCCESS` hoặc `FAILED`.
+
+
+        Giao dịch điện tử thất bại được lưu và khách hàng có thể thử lại hoặc
+
+        chuyển sang tiền mặt. Một chuyến chỉ có tối đa một giao dịch thành công.
+
+        API không nhận hoặc lưu thông tin thẻ/ngân hàng.
+
+        '
+      operationId: createPayment
+      x-requirements:
+        fr:
+        - FR18
+        - FR19
+        - FR20
+        - FR21
+        ac:
+        - AC18
+        - AC19
+        - AC20
+        - AC21
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreatePaymentRequest'
+            examples:
+              cash:
+                summary: Thanh toán tiền mặt
+                value:
+                  payment_method: CASH
+              electronicFailed:
+                summary: Mô phỏng thanh toán điện tử thất bại
+                value:
+                  payment_method: ELECTRONIC
+                  simulated_result: FAILED
+      responses:
+        '201':
+          description: Giao dịch được tạo; trạng thái có thể là SUCCESS hoặc FAILED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          description: Chuyến chưa hoàn thành hoặc đã có giao dịch thành công
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      description: Token nhận được sau khi đăng nhập
   parameters:
-  - $ref: ../components/parameters.yaml#/TripId
-  post:
-    tags:
-    - Payments
-    summary: Thanh toán chuyến đi
-    description: |
-      Chỉ khách hàng sở hữu chuyến `COMPLETED` mới được thanh toán.
-
-      - `CASH`: tạo giao dịch `SUCCESS` với số tiền bằng cước chuyến.
-      - `ELECTRONIC`: mô phỏng kết quả `SUCCESS` hoặc `FAILED`.
-
-      Giao dịch điện tử thất bại được lưu và khách hàng có thể thử lại hoặc
-      chuyển sang tiền mặt. Một chuyến chỉ có tối đa một giao dịch thành công.
-      API không nhận hoặc lưu thông tin thẻ/ngân hàng.
-    operationId: createPayment
-    x-requirements:
-      fr:
-      - FR18
-      - FR19
-      - FR20
-      - FR21
-      ac:
-      - AC18
-      - AC19
-      - AC20
-      - AC21
-    requestBody:
+    TripId:
+      name: tripId
+      in: path
       required: true
+      description: Mã chuyến đi
+      schema:
+        type: string
+      example: trip_001
+  responses:
+    BadRequest:
+      description: Dữ liệu đầu vào thiếu hoặc không hợp lệ
       content:
         application/json:
           schema:
-            $ref: ../components/schemas/payments-ratings.yaml#/CreatePaymentRequest
-          examples:
-            cash:
-              summary: Thanh toán tiền mặt
-              value:
-                payment_method: CASH
-            electronicFailed:
-              summary: Mô phỏng thanh toán điện tử thất bại
-              value:
-                payment_method: ELECTRONIC
-                simulated_result: FAILED
-    responses:
-      '201':
-        description: Giao dịch được tạo; trạng thái có thể là SUCCESS hoặc FAILED
-        content:
-          application/json:
-            schema:
-              $ref: ../components/schemas/response-wrappers.yaml#/PaymentResponse
-      '400':
-        $ref: ../components/responses.yaml#/BadRequest
-      '401':
-        $ref: ../components/responses.yaml#/Unauthorized
-      '403':
-        $ref: ../components/responses.yaml#/Forbidden
-      '404':
-        $ref: ../components/responses.yaml#/NotFound
-      '409':
-        description: Chuyến chưa hoàn thành hoặc đã có giao dịch thành công
-        content:
-          application/json:
-            schema:
-              $ref: ../components/schemas/common.yaml#/ErrorResponse
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            success: false
+            message: Dữ liệu đầu vào không hợp lệ
+            error:
+              code: VALIDATION_ERROR
+              details:
+              - field: vehicle_type
+                message: Giá trị không hợp lệ
+    Unauthorized:
+      description: Chưa đăng nhập hoặc token không hợp lệ
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            success: false
+            message: Bạn cần đăng nhập
+            error:
+              code: UNAUTHORIZED
+    Forbidden:
+      description: Tài khoản không có quyền thực hiện chức năng
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            success: false
+            message: Bạn không có quyền thực hiện chức năng này
+            error:
+              code: FORBIDDEN
+    NotFound:
+      description: Không tìm thấy dữ liệu yêu cầu
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            success: false
+            message: Không tìm thấy dữ liệu
+            error:
+              code: NOT_FOUND
+  schemas:
+    PaymentMethod:
+      type: string
+      enum:
+      - CASH
+      - ELECTRONIC
+    PaymentStatus:
+      type: string
+      enum:
+      - PENDING
+      - SUCCESS
+      - FAILED
+    CreatePaymentRequest:
+      type: object
+      additionalProperties: false
+      required:
+      - payment_method
+      properties:
+        payment_method:
+          $ref: '#/components/schemas/PaymentMethod'
+        simulated_result:
+          type: string
+          enum:
+          - SUCCESS
+          - FAILED
+          description: 'Chỉ dùng khi `payment_method` là `ELECTRONIC` để kiểm thử hai kết quả
+
+            của thanh toán mô phỏng. Không gửi trường này khi thanh toán `CASH`.
+
+            '
+    Payment:
+      type: object
+      required:
+      - id
+      - trip_id
+      - payment_method
+      - payment_status
+      - amount
+      - created_at
+      properties:
+        id:
+          type: string
+          example: payment_001
+        trip_id:
+          type: string
+          example: trip_001
+        payment_method:
+          $ref: '#/components/schemas/PaymentMethod'
+        payment_status:
+          $ref: '#/components/schemas/PaymentStatus'
+        amount:
+          type: number
+          format: double
+          minimum: 0
+          example: 37000
+        created_at:
+          type: string
+          format: date-time
+    ValidationDetail:
+      type: object
+      properties:
+        field:
+          type: string
+        message:
+          type: string
+    ErrorInfo:
+      type: object
+      required:
+      - code
+      properties:
+        code:
+          type: string
+          example: VALIDATION_ERROR
+        details:
+          type: array
+          items:
+            $ref: '#/components/schemas/ValidationDetail'
+    ErrorResponse:
+      type: object
+      required:
+      - success
+      - message
+      - error
+      properties:
+        success:
+          type: boolean
+          enum:
+          - false
+        message:
+          type: string
+        error:
+          $ref: '#/components/schemas/ErrorInfo'
+    PaymentResponse:
+      type: object
+      required:
+      - success
+      - message
+      - data
+      properties:
+        success:
+          type: boolean
+          enum:
+          - true
+        message:
+          type: string
+        data:
+          $ref: '#/components/schemas/Payment'

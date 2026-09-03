@@ -1,93 +1,301 @@
-register:
-  post:
-    tags:
-    - Authentication
-    summary: Đăng ký tài khoản
-    description: |
-      Cho phép khách hàng hoặc tài xế tạo tài khoản. Email phải duy nhất và
-      vai trò đăng ký chỉ được là `CUSTOMER` hoặc `DRIVER`.
-    operationId: register
-    security: []
-    x-requirements:
-      fr:
-      - FR01
-      ac:
-      - AC01
-    requestBody:
-      required: true
+openapi: 3.0.3
+info:
+  title: CAB System - Authentication API
+  version: 1.0.0
+  description: 'API Specification cho CAB System MVP, được xây dựng từ Functional Requirement
+
+    FR01–FR27 và Acceptance Criteria AC01–AC27 trong `srs.md`.
+
+
+    Các xử lý tự động như lọc và sắp xếp tài xế, tạo đề xuất chuyến, tính cước,
+
+    đồng bộ trạng thái tài xế và tạo thông báo được thực hiện bên trong các API
+
+    nghiệp vụ liên quan, không tách thành API công khai riêng.
+
+    '
+servers:
+- url: http://localhost:3000/api/v1
+  description: Máy chủ phát triển cục bộ
+security:
+- bearerAuth: []
+tags:
+- name: Authentication
+  description: Đăng ký, đăng nhập và cấp phiên xác thực
+paths:
+  /auth/register:
+    post:
+      tags:
+      - Authentication
+      summary: Đăng ký tài khoản
+      description: 'Cho phép khách hàng hoặc tài xế tạo tài khoản. Email phải duy nhất và
+
+        vai trò đăng ký chỉ được là `CUSTOMER` hoặc `DRIVER`.
+
+        '
+      operationId: register
+      security: []
+      x-requirements:
+        fr:
+        - FR01
+        ac:
+        - AC01
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+            example:
+              full_name: Nguyễn Văn An
+              email: an@example.com
+              password: Secret123
+              phone: 0901234567
+              role: CUSTOMER
+      responses:
+        '201':
+          description: Tạo tài khoản thành công
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '409':
+          description: Email đã tồn tại
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                success: false
+                message: Email đã tồn tại
+                error:
+                  code: EMAIL_ALREADY_EXISTS
+  /auth/login:
+    post:
+      tags:
+      - Authentication
+      summary: Đăng nhập
+      description: 'Xác thực email và mật khẩu, sau đó trả về token cùng thông tin người dùng.
+
+        Token được dùng để kiểm soát quyền theo `CUSTOMER`, `DRIVER` và `OPERATOR`.
+
+        '
+      operationId: login
+      security: []
+      x-requirements:
+        fr:
+        - FR02
+        - FR03
+        ac:
+        - AC02
+        - AC03
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+            example:
+              email: an@example.com
+              password: Secret123
+      responses:
+        '200':
+          description: Đăng nhập thành công
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          description: Email hoặc mật khẩu không đúng
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                success: false
+                message: Email hoặc mật khẩu không đúng
+                error:
+                  code: INVALID_CREDENTIALS
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      description: Token nhận được sau khi đăng nhập
+  responses:
+    BadRequest:
+      description: Dữ liệu đầu vào thiếu hoặc không hợp lệ
       content:
         application/json:
           schema:
-            $ref: ../components/schemas/authentication-profiles.yaml#/RegisterRequest
+            $ref: '#/components/schemas/ErrorResponse'
           example:
-            full_name: Nguyễn Văn An
-            email: an@example.com
-            password: Secret123
-            phone: '0901234567'
-            role: CUSTOMER
-    responses:
-      '201':
-        description: Tạo tài khoản thành công
-        content:
-          application/json:
-            schema:
-              $ref: ../components/schemas/response-wrappers.yaml#/UserResponse
-      '400':
-        $ref: ../components/responses.yaml#/BadRequest
-      '409':
-        description: Email đã tồn tại
-        content:
-          application/json:
-            schema:
-              $ref: ../components/schemas/common.yaml#/ErrorResponse
-            example:
-              success: false
-              message: Email đã tồn tại
-              error:
-                code: EMAIL_ALREADY_EXISTS
-login:
-  post:
-    tags:
-    - Authentication
-    summary: Đăng nhập
-    description: |
-      Xác thực email và mật khẩu, sau đó trả về token cùng thông tin người dùng.
-      Token được dùng để kiểm soát quyền theo `CUSTOMER`, `DRIVER` và `OPERATOR`.
-    operationId: login
-    security: []
-    x-requirements:
-      fr:
-      - FR02
-      - FR03
-      ac:
-      - AC02
-      - AC03
-    requestBody:
-      required: true
-      content:
-        application/json:
-          schema:
-            $ref: ../components/schemas/authentication-profiles.yaml#/LoginRequest
-          example:
-            email: an@example.com
-            password: Secret123
-    responses:
-      '200':
-        description: Đăng nhập thành công
-        content:
-          application/json:
-            schema:
-              $ref: ../components/schemas/response-wrappers.yaml#/AuthResponse
-      '400':
-        $ref: ../components/responses.yaml#/BadRequest
-      '401':
-        description: Email hoặc mật khẩu không đúng
-        content:
-          application/json:
-            schema:
-              $ref: ../components/schemas/common.yaml#/ErrorResponse
-            example:
-              success: false
-              message: Email hoặc mật khẩu không đúng
-              error:
-                code: INVALID_CREDENTIALS
+            success: false
+            message: Dữ liệu đầu vào không hợp lệ
+            error:
+              code: VALIDATION_ERROR
+              details:
+              - field: vehicle_type
+                message: Giá trị không hợp lệ
+  schemas:
+    UserRole:
+      type: string
+      enum:
+      - CUSTOMER
+      - DRIVER
+      - OPERATOR
+    RegisterRole:
+      type: string
+      enum:
+      - CUSTOMER
+      - DRIVER
+    RegisterRequest:
+      type: object
+      additionalProperties: false
+      required:
+      - full_name
+      - email
+      - password
+      - phone
+      - role
+      properties:
+        full_name:
+          type: string
+          minLength: 1
+          maxLength: 100
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          format: password
+          minLength: 6
+          writeOnly: true
+        phone:
+          type: string
+          minLength: 9
+          maxLength: 15
+        role:
+          $ref: '#/components/schemas/RegisterRole'
+    LoginRequest:
+      type: object
+      additionalProperties: false
+      required:
+      - email
+      - password
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          format: password
+          writeOnly: true
+    User:
+      type: object
+      required:
+      - id
+      - full_name
+      - email
+      - phone
+      - role
+      - created_at
+      properties:
+        id:
+          type: string
+          example: user_001
+        full_name:
+          type: string
+          example: Nguyễn Văn An
+        email:
+          type: string
+          format: email
+          example: an@example.com
+        phone:
+          type: string
+          example: 0901234567
+        role:
+          $ref: '#/components/schemas/UserRole'
+        created_at:
+          type: string
+          format: date-time
+      description: Mật khẩu và password_hash không bao giờ được trả về trong API.
+    ValidationDetail:
+      type: object
+      properties:
+        field:
+          type: string
+        message:
+          type: string
+    ErrorInfo:
+      type: object
+      required:
+      - code
+      properties:
+        code:
+          type: string
+          example: VALIDATION_ERROR
+        details:
+          type: array
+          items:
+            $ref: '#/components/schemas/ValidationDetail'
+    ErrorResponse:
+      type: object
+      required:
+      - success
+      - message
+      - error
+      properties:
+        success:
+          type: boolean
+          enum:
+          - false
+        message:
+          type: string
+        error:
+          $ref: '#/components/schemas/ErrorInfo'
+    UserResponse:
+      type: object
+      required:
+      - success
+      - message
+      - data
+      properties:
+        success:
+          type: boolean
+          enum:
+          - true
+        message:
+          type: string
+          example: Thao tác thành công
+        data:
+          $ref: '#/components/schemas/User'
+    AuthResponse:
+      type: object
+      required:
+      - success
+      - message
+      - data
+      properties:
+        success:
+          type: boolean
+          enum:
+          - true
+        message:
+          type: string
+          example: Đăng nhập thành công
+        data:
+          type: object
+          required:
+          - token
+          - user
+          properties:
+            token:
+              type: string
+              example: eyJhbGciOiJIUzI1NiJ9.example
+            user:
+              $ref: '#/components/schemas/User'
