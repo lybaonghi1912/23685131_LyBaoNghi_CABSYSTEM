@@ -1,0 +1,515 @@
+openapi: 3.0.3
+info:
+  title: CAB System API - BR02 - Quản lý hồ sơ và phương tiện
+  version: 1.0.0
+  description: |-
+    API Specification độc lập cho BR02 - Quản lý hồ sơ và phương tiện.
+
+    Phạm vi: Xem và cập nhật hồ sơ, phương tiện và trạng thái hoạt động của tài xế.
+
+    Functional Requirements: FR04, FR05, FR06.
+    Acceptance Criteria: AC04, AC05, AC06.
+servers:
+- url: http://localhost:3000/api/v1
+  description: Máy chủ phát triển cục bộ
+security:
+- bearerAuth: []
+x-requirements:
+  fr:
+  - FR04
+  - FR05
+  - FR06
+  ac:
+  - AC04
+  - AC05
+  - AC06
+tags:
+- name: Profiles
+  description: Hồ sơ người dùng, phương tiện và trạng thái tài xế
+paths:
+  /users/me:
+    get:
+      tags:
+      - Profiles
+      summary: Xem hồ sơ của mình
+      description: Trả về hồ sơ của khách hàng hoặc tài xế đang đăng nhập.
+      operationId: getMyProfile
+      x-requirements:
+        fr:
+        - FR03
+        - FR04
+        - FR05
+        ac:
+        - AC03
+        - AC04
+        - AC05
+      responses:
+        '200':
+          description: Lấy hồ sơ thành công
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MyProfileResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+    patch:
+      tags:
+      - Profiles
+      summary: Cập nhật hồ sơ của mình
+      description: |
+        Khách hàng hoặc tài xế chỉ được sửa họ tên và số điện thoại của chính mình.
+        Không cho phép cập nhật hồ sơ người dùng khác.
+      operationId: updateMyProfile
+      x-requirements:
+        fr:
+        - FR03
+        - FR04
+        - FR05
+        ac:
+        - AC03
+        - AC04
+        - AC05
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateProfileRequest'
+            example:
+              full_name: Nguyễn Văn An
+              phone: 0912345678
+      responses:
+        '200':
+          description: Cập nhật hồ sơ thành công
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+  /drivers/me/vehicle:
+    get:
+      tags:
+      - Profiles
+      summary: Xem phương tiện của tài xế
+      operationId: getMyVehicle
+      x-requirements:
+        fr:
+        - FR05
+        ac:
+        - AC05
+      responses:
+        '200':
+          description: Lấy thông tin phương tiện thành công
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VehicleResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    put:
+      tags:
+      - Profiles
+      summary: Tạo hoặc cập nhật phương tiện của tài xế
+      description: |
+        Mỗi tài xế có tối đa một phương tiện. Biển số phải duy nhất và loại xe
+        phải là `MOTORBIKE` hoặc `CAR`.
+      operationId: upsertMyVehicle
+      x-requirements:
+        fr:
+        - FR05
+        ac:
+        - AC05
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VehicleRequest'
+            example:
+              vehicle_type: MOTORBIKE
+              license_plate: 59A1-12345
+              brand: Honda Wave
+      responses:
+        '200':
+          description: Lưu phương tiện thành công
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VehicleResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '409':
+          description: Biển số đã được sử dụng
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /drivers/me/status:
+    patch:
+      tags:
+      - Profiles
+      summary: Cập nhật trạng thái hoạt động của tài xế
+      description: |
+        Tài xế có phương tiện hợp lệ được chuyển giữa `AVAILABLE` và `OFFLINE`.
+        Tài xế đang `BUSY` không thể tự chuyển sang `OFFLINE`.
+      operationId: updateMyDriverStatus
+      x-requirements:
+        fr:
+        - FR06
+        ac:
+        - AC06
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DriverStatusRequest'
+            example:
+              driver_status: AVAILABLE
+      responses:
+        '200':
+          description: Cập nhật trạng thái thành công
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DriverProfileResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '409':
+          $ref: '#/components/responses/Conflict'
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      description: Token nhận được sau khi đăng nhập
+  responses:
+    Conflict:
+      description: Thao tác xung đột với trạng thái hiện tại của dữ liệu
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            success: false
+            message: Không thể thực hiện thao tác ở trạng thái hiện tại
+            error:
+              code: STATE_CONFLICT
+    Forbidden:
+      description: Tài khoản không có quyền thực hiện chức năng
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            success: false
+            message: Bạn không có quyền thực hiện chức năng này
+            error:
+              code: FORBIDDEN
+    Unauthorized:
+      description: Chưa đăng nhập hoặc token không hợp lệ
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            success: false
+            message: Bạn cần đăng nhập
+            error:
+              code: UNAUTHORIZED
+    BadRequest:
+      description: Dữ liệu đầu vào thiếu hoặc không hợp lệ
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            success: false
+            message: Dữ liệu đầu vào không hợp lệ
+            error:
+              code: VALIDATION_ERROR
+              details:
+              - field: vehicle_type
+                message: Giá trị không hợp lệ
+    NotFound:
+      description: Không tìm thấy dữ liệu yêu cầu
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            success: false
+            message: Không tìm thấy dữ liệu
+            error:
+              code: NOT_FOUND
+  schemas:
+    ErrorResponse:
+      type: object
+      required:
+      - success
+      - message
+      - error
+      properties:
+        success:
+          type: boolean
+          enum:
+          - false
+        message:
+          type: string
+        error:
+          $ref: '#/components/schemas/ErrorInfo'
+    ErrorInfo:
+      type: object
+      required:
+      - code
+      properties:
+        code:
+          type: string
+          example: VALIDATION_ERROR
+        details:
+          type: array
+          items:
+            $ref: '#/components/schemas/ValidationDetail'
+    ValidationDetail:
+      type: object
+      properties:
+        field:
+          type: string
+        message:
+          type: string
+    DriverProfileResponse:
+      type: object
+      required:
+      - success
+      - message
+      - data
+      properties:
+        success:
+          type: boolean
+          enum:
+          - true
+        message:
+          type: string
+        data:
+          $ref: '#/components/schemas/DriverProfile'
+    DriverProfile:
+      type: object
+      required:
+      - id
+      - user_id
+      - driver_status
+      - average_rating
+      properties:
+        id:
+          type: string
+          example: driver_001
+        user_id:
+          type: string
+          example: user_driver_001
+        driver_status:
+          $ref: '#/components/schemas/DriverStatus'
+        current_latitude:
+          type: number
+          format: double
+          nullable: true
+          example: 10.8222
+        current_longitude:
+          type: number
+          format: double
+          nullable: true
+          example: 106.6872
+        average_rating:
+          type: number
+          format: double
+          minimum: 0
+          maximum: 5
+          example: 4.8
+    DriverStatus:
+      type: string
+      enum:
+      - AVAILABLE
+      - BUSY
+      - OFFLINE
+    DriverStatusRequest:
+      type: object
+      additionalProperties: false
+      required:
+      - driver_status
+      properties:
+        driver_status:
+          type: string
+          enum:
+          - AVAILABLE
+          - OFFLINE
+    VehicleResponse:
+      type: object
+      required:
+      - success
+      - message
+      - data
+      properties:
+        success:
+          type: boolean
+          enum:
+          - true
+        message:
+          type: string
+        data:
+          $ref: '#/components/schemas/Vehicle'
+    Vehicle:
+      type: object
+      required:
+      - id
+      - driver_id
+      - vehicle_type
+      - license_plate
+      properties:
+        id:
+          type: string
+          example: vehicle_001
+        driver_id:
+          type: string
+          example: driver_001
+        vehicle_type:
+          $ref: '#/components/schemas/VehicleType'
+        license_plate:
+          type: string
+          example: 59A1-12345
+        brand:
+          type: string
+          nullable: true
+          example: Honda Wave
+    VehicleType:
+      type: string
+      enum:
+      - MOTORBIKE
+      - CAR
+    VehicleRequest:
+      type: object
+      additionalProperties: false
+      required:
+      - vehicle_type
+      - license_plate
+      properties:
+        vehicle_type:
+          $ref: '#/components/schemas/VehicleType'
+        license_plate:
+          type: string
+          minLength: 4
+          maxLength: 20
+        brand:
+          type: string
+          maxLength: 100
+    UserResponse:
+      type: object
+      required:
+      - success
+      - message
+      - data
+      properties:
+        success:
+          type: boolean
+          enum:
+          - true
+        message:
+          type: string
+          example: Thao tác thành công
+        data:
+          $ref: '#/components/schemas/User'
+    User:
+      type: object
+      required:
+      - id
+      - full_name
+      - email
+      - phone
+      - role
+      - created_at
+      properties:
+        id:
+          type: string
+          example: user_001
+        full_name:
+          type: string
+          example: Nguyễn Văn An
+        email:
+          type: string
+          format: email
+          example: an@example.com
+        phone:
+          type: string
+          example: 0901234567
+        role:
+          $ref: '#/components/schemas/UserRole'
+        created_at:
+          type: string
+          format: date-time
+      description: Mật khẩu và password_hash không bao giờ được trả về trong API.
+    UserRole:
+      type: string
+      enum:
+      - CUSTOMER
+      - DRIVER
+      - OPERATOR
+    UpdateProfileRequest:
+      type: object
+      additionalProperties: false
+      minProperties: 1
+      properties:
+        full_name:
+          type: string
+          minLength: 1
+          maxLength: 100
+        phone:
+          type: string
+          minLength: 9
+          maxLength: 15
+    MyProfileResponse:
+      type: object
+      required:
+      - success
+      - message
+      - data
+      properties:
+        success:
+          type: boolean
+          enum:
+          - true
+        message:
+          type: string
+        data:
+          $ref: '#/components/schemas/MyProfile'
+    MyProfile:
+      type: object
+      required:
+      - user
+      properties:
+        user:
+          $ref: '#/components/schemas/User'
+        driver_profile:
+          allOf:
+          - $ref: '#/components/schemas/DriverProfile'
+          nullable: true
+        vehicle:
+          allOf:
+          - $ref: '#/components/schemas/Vehicle'
+          nullable: true
