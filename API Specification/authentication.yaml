@@ -1,0 +1,93 @@
+register:
+  post:
+    tags:
+    - Authentication
+    summary: Đăng ký tài khoản
+    description: |
+      Cho phép khách hàng hoặc tài xế tạo tài khoản. Email phải duy nhất và
+      vai trò đăng ký chỉ được là `CUSTOMER` hoặc `DRIVER`.
+    operationId: register
+    security: []
+    x-requirements:
+      fr:
+      - FR01
+      ac:
+      - AC01
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: ../components/schemas/authentication-profiles.yaml#/RegisterRequest
+          example:
+            full_name: Nguyễn Văn An
+            email: an@example.com
+            password: Secret123
+            phone: '0901234567'
+            role: CUSTOMER
+    responses:
+      '201':
+        description: Tạo tài khoản thành công
+        content:
+          application/json:
+            schema:
+              $ref: ../components/schemas/response-wrappers.yaml#/UserResponse
+      '400':
+        $ref: ../components/responses.yaml#/BadRequest
+      '409':
+        description: Email đã tồn tại
+        content:
+          application/json:
+            schema:
+              $ref: ../components/schemas/common.yaml#/ErrorResponse
+            example:
+              success: false
+              message: Email đã tồn tại
+              error:
+                code: EMAIL_ALREADY_EXISTS
+login:
+  post:
+    tags:
+    - Authentication
+    summary: Đăng nhập
+    description: |
+      Xác thực email và mật khẩu, sau đó trả về token cùng thông tin người dùng.
+      Token được dùng để kiểm soát quyền theo `CUSTOMER`, `DRIVER` và `OPERATOR`.
+    operationId: login
+    security: []
+    x-requirements:
+      fr:
+      - FR02
+      - FR03
+      ac:
+      - AC02
+      - AC03
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: ../components/schemas/authentication-profiles.yaml#/LoginRequest
+          example:
+            email: an@example.com
+            password: Secret123
+    responses:
+      '200':
+        description: Đăng nhập thành công
+        content:
+          application/json:
+            schema:
+              $ref: ../components/schemas/response-wrappers.yaml#/AuthResponse
+      '400':
+        $ref: ../components/responses.yaml#/BadRequest
+      '401':
+        description: Email hoặc mật khẩu không đúng
+        content:
+          application/json:
+            schema:
+              $ref: ../components/schemas/common.yaml#/ErrorResponse
+            example:
+              success: false
+              message: Email hoặc mật khẩu không đúng
+              error:
+                code: INVALID_CREDENTIALS

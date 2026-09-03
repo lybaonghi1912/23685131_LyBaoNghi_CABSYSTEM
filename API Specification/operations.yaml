@@ -1,0 +1,249 @@
+operatorCustomers:
+  get:
+    tags:
+    - Operations
+    summary: Tra cứu khách hàng
+    operationId: searchCustomers
+    x-requirements:
+      fr:
+      - FR25
+      ac:
+      - AC25
+    parameters:
+    - $ref: ../components/parameters.yaml#/Keyword
+    responses:
+      '200':
+        description: Danh sách khách hàng phù hợp; có thể là mảng rỗng
+        content:
+          application/json:
+            schema:
+              $ref: ../components/schemas/response-wrappers.yaml#/UserListResponse
+      '401':
+        $ref: ../components/responses.yaml#/Unauthorized
+      '403':
+        $ref: ../components/responses.yaml#/Forbidden
+operatorCustomerById:
+  parameters:
+  - $ref: ../components/parameters.yaml#/CustomerId
+  get:
+    tags:
+    - Operations
+    summary: Xem chi tiết khách hàng
+    operationId: getCustomerForOperator
+    x-requirements:
+      fr:
+      - FR25
+      ac:
+      - AC25
+    responses:
+      '200':
+        description: Lấy thông tin khách hàng thành công
+        content:
+          application/json:
+            schema:
+              $ref: ../components/schemas/response-wrappers.yaml#/UserResponse
+      '401':
+        $ref: ../components/responses.yaml#/Unauthorized
+      '403':
+        $ref: ../components/responses.yaml#/Forbidden
+      '404':
+        $ref: ../components/responses.yaml#/NotFound
+operatorDrivers:
+  get:
+    tags:
+    - Operations
+    summary: Tra cứu tài xế
+    operationId: searchDrivers
+    x-requirements:
+      fr:
+      - FR25
+      ac:
+      - AC25
+    parameters:
+    - $ref: ../components/parameters.yaml#/Keyword
+    - name: status
+      in: query
+      required: false
+      description: Lọc theo trạng thái tài xế
+      schema:
+        $ref: ../components/schemas/common.yaml#/DriverStatus
+    responses:
+      '200':
+        description: Danh sách tài xế phù hợp; có thể là mảng rỗng
+        content:
+          application/json:
+            schema:
+              $ref: ../components/schemas/response-wrappers.yaml#/DriverListResponse
+      '401':
+        $ref: ../components/responses.yaml#/Unauthorized
+      '403':
+        $ref: ../components/responses.yaml#/Forbidden
+operatorDriverById:
+  parameters:
+  - $ref: ../components/parameters.yaml#/DriverId
+  get:
+    tags:
+    - Operations
+    summary: Xem chi tiết tài xế
+    operationId: getDriverForOperator
+    x-requirements:
+      fr:
+      - FR25
+      ac:
+      - AC25
+    responses:
+      '200':
+        description: Lấy thông tin tài xế thành công
+        content:
+          application/json:
+            schema:
+              $ref: ../components/schemas/response-wrappers.yaml#/DriverDetailsResponse
+      '401':
+        $ref: ../components/responses.yaml#/Unauthorized
+      '403':
+        $ref: ../components/responses.yaml#/Forbidden
+      '404':
+        $ref: ../components/responses.yaml#/NotFound
+operatorVehicles:
+  get:
+    tags:
+    - Operations
+    summary: Tra cứu phương tiện
+    operationId: searchVehicles
+    x-requirements:
+      fr:
+      - FR25
+      ac:
+      - AC25
+    parameters:
+    - $ref: ../components/parameters.yaml#/Keyword
+    - name: vehicle_type
+      in: query
+      required: false
+      description: Lọc theo loại xe
+      schema:
+        $ref: ../components/schemas/common.yaml#/VehicleType
+    responses:
+      '200':
+        description: Danh sách phương tiện phù hợp; có thể là mảng rỗng
+        content:
+          application/json:
+            schema:
+              $ref: ../components/schemas/response-wrappers.yaml#/VehicleListResponse
+      '401':
+        $ref: ../components/responses.yaml#/Unauthorized
+      '403':
+        $ref: ../components/responses.yaml#/Forbidden
+operatorVehicleById:
+  parameters:
+  - $ref: ../components/parameters.yaml#/VehicleId
+  get:
+    tags:
+    - Operations
+    summary: Xem chi tiết phương tiện
+    operationId: getVehicleForOperator
+    x-requirements:
+      fr:
+      - FR25
+      ac:
+      - AC25
+    responses:
+      '200':
+        description: Lấy thông tin phương tiện thành công
+        content:
+          application/json:
+            schema:
+              $ref: ../components/schemas/response-wrappers.yaml#/VehicleResponse
+      '401':
+        $ref: ../components/responses.yaml#/Unauthorized
+      '403':
+        $ref: ../components/responses.yaml#/Forbidden
+      '404':
+        $ref: ../components/responses.yaml#/NotFound
+operatorTrips:
+  get:
+    tags:
+    - Operations
+    summary: Theo dõi và lọc chuyến đi
+    operationId: searchTripsForOperator
+    x-requirements:
+      fr:
+      - FR25
+      - FR26
+      ac:
+      - AC25
+      - AC26
+    parameters:
+    - $ref: ../components/parameters.yaml#/Keyword
+    - name: status
+      in: query
+      required: false
+      description: Lọc chuyến theo trạng thái
+      schema:
+        $ref: ../components/schemas/common.yaml#/TripStatus
+    responses:
+      '200':
+        description: Danh sách chuyến đúng điều kiện; có thể là mảng rỗng
+        content:
+          application/json:
+            schema:
+              $ref: ../components/schemas/response-wrappers.yaml#/TripListResponse
+      '401':
+        $ref: ../components/responses.yaml#/Unauthorized
+      '403':
+        $ref: ../components/responses.yaml#/Forbidden
+operatorTripById:
+  parameters:
+  - $ref: ../components/parameters.yaml#/TripId
+  get:
+    tags:
+    - Operations
+    summary: Xem chi tiết chuyến dành cho nhân viên vận hành
+    operationId: getTripForOperator
+    x-requirements:
+      fr:
+      - FR25
+      - FR26
+      ac:
+      - AC25
+      - AC26
+    responses:
+      '200':
+        description: Lấy chi tiết chuyến thành công
+        content:
+          application/json:
+            schema:
+              $ref: ../components/schemas/response-wrappers.yaml#/TripResponse
+      '401':
+        $ref: ../components/responses.yaml#/Unauthorized
+      '403':
+        $ref: ../components/responses.yaml#/Forbidden
+      '404':
+        $ref: ../components/responses.yaml#/NotFound
+operatorReportSummary:
+  get:
+    tags:
+    - Operations
+    summary: Xem báo cáo hoạt động cơ bản
+    description: |
+      Trả về tổng số chuyến, số chuyến `COMPLETED`, số chuyến `CANCELLED` và
+      doanh thu chỉ tính từ giao dịch `SUCCESS`. Nếu chưa có dữ liệu, các giá trị bằng 0.
+    operationId: getOperationSummary
+    x-requirements:
+      fr:
+      - FR27
+      ac:
+      - AC27
+    responses:
+      '200':
+        description: Lấy báo cáo thành công
+        content:
+          application/json:
+            schema:
+              $ref: ../components/schemas/response-wrappers.yaml#/ReportResponse
+      '401':
+        $ref: ../components/responses.yaml#/Unauthorized
+      '403':
+        $ref: ../components/responses.yaml#/Forbidden
+      '500':
+        $ref: ../components/responses.yaml#/InternalServerError
