@@ -1,0 +1,213 @@
+openapi: 3.0.3
+info:
+  title: CAB System API
+  version: 1.0.0
+  description: |
+    API Specification cho CAB System MVP, được xây dựng từ Functional Requirement
+    FR01–FR27 và Acceptance Criteria AC01–AC27 trong `srs.md`.
+
+    Các xử lý tự động như lọc và sắp xếp tài xế, tạo đề xuất chuyến, tính cước,
+    đồng bộ trạng thái tài xế và tạo thông báo được thực hiện bên trong các API
+    nghiệp vụ liên quan, không tách thành API công khai riêng.
+servers:
+- url: http://localhost:3000/api/v1
+  description: Máy chủ phát triển cục bộ
+security:
+- bearerAuth: []
+tags:
+- name: Authentication
+  description: Đăng ký, đăng nhập và cấp phiên xác thực
+- name: Profiles
+  description: Hồ sơ người dùng, phương tiện và trạng thái tài xế
+- name: Trips
+  description: Đặt, theo dõi, hủy và cập nhật chuyến đi
+- name: Driver Offers
+  description: Đề xuất chuyến và phản hồi của tài xế
+- name: Payments
+  description: Thanh toán tiền mặt và điện tử mô phỏng
+- name: Notifications
+  description: Thông báo của khách hàng và tài xế
+- name: Ratings
+  description: Đánh giá tài xế sau chuyến đi
+- name: Operations
+  description: Tra cứu và báo cáo dành cho nhân viên vận hành
+paths:
+  /auth/register:
+    $ref: ./paths/authentication.yaml#/register
+  /auth/login:
+    $ref: ./paths/authentication.yaml#/login
+  /users/me:
+    $ref: ./paths/profiles.yaml#/myProfile
+  /drivers/me/vehicle:
+    $ref: ./paths/profiles.yaml#/myVehicle
+  /drivers/me/status:
+    $ref: ./paths/profiles.yaml#/myDriverStatus
+  /trips:
+    $ref: ./paths/trips.yaml#/trips
+  /trips/current:
+    $ref: ./paths/trips.yaml#/currentTrip
+  /trips/{tripId}:
+    $ref: ./paths/trips.yaml#/tripById
+  /trips/{tripId}/cancel:
+    $ref: ./paths/trips.yaml#/cancelTrip
+  /trips/{tripId}/status:
+    $ref: ./paths/trips.yaml#/tripStatus
+  /me/trips:
+    $ref: ./paths/trips.yaml#/myTripHistory
+  /driver-offers/current:
+    $ref: ./paths/driver-offers.yaml#/currentDriverOffer
+  /driver-offers/{offerId}/response:
+    $ref: ./paths/driver-offers.yaml#/driverOfferResponse
+  /trips/{tripId}/payments:
+    $ref: ./paths/payments.yaml#/tripPayments
+  /notifications:
+    $ref: ./paths/notifications.yaml#/notifications
+  /trips/{tripId}/ratings:
+    $ref: ./paths/ratings.yaml#/tripRatings
+  /operator/customers:
+    $ref: ./paths/operations.yaml#/operatorCustomers
+  /operator/customers/{customerId}:
+    $ref: ./paths/operations.yaml#/operatorCustomerById
+  /operator/drivers:
+    $ref: ./paths/operations.yaml#/operatorDrivers
+  /operator/drivers/{driverId}:
+    $ref: ./paths/operations.yaml#/operatorDriverById
+  /operator/vehicles:
+    $ref: ./paths/operations.yaml#/operatorVehicles
+  /operator/vehicles/{vehicleId}:
+    $ref: ./paths/operations.yaml#/operatorVehicleById
+  /operator/trips:
+    $ref: ./paths/operations.yaml#/operatorTrips
+  /operator/trips/{tripId}:
+    $ref: ./paths/operations.yaml#/operatorTripById
+  /operator/reports/summary:
+    $ref: ./paths/operations.yaml#/operatorReportSummary
+components:
+  securitySchemes:
+    bearerAuth:
+      $ref: ./components/security-schemes.yaml#/bearerAuth
+  parameters:
+    TripId:
+      $ref: ./components/parameters.yaml#/TripId
+    OfferId:
+      $ref: ./components/parameters.yaml#/OfferId
+    CustomerId:
+      $ref: ./components/parameters.yaml#/CustomerId
+    DriverId:
+      $ref: ./components/parameters.yaml#/DriverId
+    VehicleId:
+      $ref: ./components/parameters.yaml#/VehicleId
+    Keyword:
+      $ref: ./components/parameters.yaml#/Keyword
+  responses:
+    BadRequest:
+      $ref: ./components/responses.yaml#/BadRequest
+    Unauthorized:
+      $ref: ./components/responses.yaml#/Unauthorized
+    Forbidden:
+      $ref: ./components/responses.yaml#/Forbidden
+    NotFound:
+      $ref: ./components/responses.yaml#/NotFound
+    Conflict:
+      $ref: ./components/responses.yaml#/Conflict
+    InternalServerError:
+      $ref: ./components/responses.yaml#/InternalServerError
+  schemas:
+    UserRole:
+      $ref: ./components/schemas/common.yaml#/UserRole
+    RegisterRole:
+      $ref: ./components/schemas/common.yaml#/RegisterRole
+    DriverStatus:
+      $ref: ./components/schemas/common.yaml#/DriverStatus
+    VehicleType:
+      $ref: ./components/schemas/common.yaml#/VehicleType
+    TripStatus:
+      $ref: ./components/schemas/common.yaml#/TripStatus
+    OfferStatus:
+      $ref: ./components/schemas/common.yaml#/OfferStatus
+    PaymentMethod:
+      $ref: ./components/schemas/common.yaml#/PaymentMethod
+    PaymentStatus:
+      $ref: ./components/schemas/common.yaml#/PaymentStatus
+    ValidationDetail:
+      $ref: ./components/schemas/common.yaml#/ValidationDetail
+    ErrorInfo:
+      $ref: ./components/schemas/common.yaml#/ErrorInfo
+    ErrorResponse:
+      $ref: ./components/schemas/common.yaml#/ErrorResponse
+    RegisterRequest:
+      $ref: ./components/schemas/authentication-profiles.yaml#/RegisterRequest
+    LoginRequest:
+      $ref: ./components/schemas/authentication-profiles.yaml#/LoginRequest
+    UpdateProfileRequest:
+      $ref: ./components/schemas/authentication-profiles.yaml#/UpdateProfileRequest
+    VehicleRequest:
+      $ref: ./components/schemas/authentication-profiles.yaml#/VehicleRequest
+    DriverStatusRequest:
+      $ref: ./components/schemas/authentication-profiles.yaml#/DriverStatusRequest
+    User:
+      $ref: ./components/schemas/authentication-profiles.yaml#/User
+    DriverProfile:
+      $ref: ./components/schemas/authentication-profiles.yaml#/DriverProfile
+    Vehicle:
+      $ref: ./components/schemas/authentication-profiles.yaml#/Vehicle
+    DriverDetails:
+      $ref: ./components/schemas/authentication-profiles.yaml#/DriverDetails
+    MyProfile:
+      $ref: ./components/schemas/authentication-profiles.yaml#/MyProfile
+    DriverSummary:
+      $ref: ./components/schemas/authentication-profiles.yaml#/DriverSummary
+    CreateTripRequest:
+      $ref: ./components/schemas/trips-offers.yaml#/CreateTripRequest
+    OfferDecisionRequest:
+      $ref: ./components/schemas/trips-offers.yaml#/OfferDecisionRequest
+    TripStatusRequest:
+      $ref: ./components/schemas/trips-offers.yaml#/TripStatusRequest
+    Trip:
+      $ref: ./components/schemas/trips-offers.yaml#/Trip
+    DriverOffer:
+      $ref: ./components/schemas/trips-offers.yaml#/DriverOffer
+    CreatePaymentRequest:
+      $ref: ./components/schemas/payments-ratings.yaml#/CreatePaymentRequest
+    CreateRatingRequest:
+      $ref: ./components/schemas/payments-ratings.yaml#/CreateRatingRequest
+    Payment:
+      $ref: ./components/schemas/payments-ratings.yaml#/Payment
+    Rating:
+      $ref: ./components/schemas/payments-ratings.yaml#/Rating
+    Notification:
+      $ref: ./components/schemas/notifications-reports.yaml#/Notification
+    ReportSummary:
+      $ref: ./components/schemas/notifications-reports.yaml#/ReportSummary
+    UserResponse:
+      $ref: ./components/schemas/response-wrappers.yaml#/UserResponse
+    AuthResponse:
+      $ref: ./components/schemas/response-wrappers.yaml#/AuthResponse
+    MyProfileResponse:
+      $ref: ./components/schemas/response-wrappers.yaml#/MyProfileResponse
+    VehicleResponse:
+      $ref: ./components/schemas/response-wrappers.yaml#/VehicleResponse
+    DriverProfileResponse:
+      $ref: ./components/schemas/response-wrappers.yaml#/DriverProfileResponse
+    DriverDetailsResponse:
+      $ref: ./components/schemas/response-wrappers.yaml#/DriverDetailsResponse
+    TripResponse:
+      $ref: ./components/schemas/response-wrappers.yaml#/TripResponse
+    DriverOfferResponse:
+      $ref: ./components/schemas/response-wrappers.yaml#/DriverOfferResponse
+    PaymentResponse:
+      $ref: ./components/schemas/response-wrappers.yaml#/PaymentResponse
+    RatingResponse:
+      $ref: ./components/schemas/response-wrappers.yaml#/RatingResponse
+    TripListResponse:
+      $ref: ./components/schemas/response-wrappers.yaml#/TripListResponse
+    NotificationListResponse:
+      $ref: ./components/schemas/response-wrappers.yaml#/NotificationListResponse
+    UserListResponse:
+      $ref: ./components/schemas/response-wrappers.yaml#/UserListResponse
+    DriverListResponse:
+      $ref: ./components/schemas/response-wrappers.yaml#/DriverListResponse
+    VehicleListResponse:
+      $ref: ./components/schemas/response-wrappers.yaml#/VehicleListResponse
+    ReportResponse:
+      $ref: ./components/schemas/response-wrappers.yaml#/ReportResponse

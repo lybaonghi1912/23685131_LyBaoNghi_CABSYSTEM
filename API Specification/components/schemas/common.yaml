@@ -1,0 +1,84 @@
+UserRole:
+  type: string
+  enum:
+  - CUSTOMER
+  - DRIVER
+  - OPERATOR
+RegisterRole:
+  type: string
+  enum:
+  - CUSTOMER
+  - DRIVER
+DriverStatus:
+  type: string
+  enum:
+  - AVAILABLE
+  - BUSY
+  - OFFLINE
+VehicleType:
+  type: string
+  enum:
+  - MOTORBIKE
+  - CAR
+TripStatus:
+  type: string
+  enum:
+  - SEARCHING
+  - ACCEPTED
+  - ARRIVED
+  - IN_PROGRESS
+  - COMPLETED
+  - CANCELLED
+  - NO_DRIVER
+OfferStatus:
+  type: string
+  enum:
+  - PENDING
+  - ACCEPTED
+  - REJECTED
+  - EXPIRED
+PaymentMethod:
+  type: string
+  enum:
+  - CASH
+  - ELECTRONIC
+PaymentStatus:
+  type: string
+  enum:
+  - PENDING
+  - SUCCESS
+  - FAILED
+ValidationDetail:
+  type: object
+  properties:
+    field:
+      type: string
+    message:
+      type: string
+ErrorInfo:
+  type: object
+  required:
+  - code
+  properties:
+    code:
+      type: string
+      example: VALIDATION_ERROR
+    details:
+      type: array
+      items:
+        $ref: ./common.yaml#/ValidationDetail
+ErrorResponse:
+  type: object
+  required:
+  - success
+  - message
+  - error
+  properties:
+    success:
+      type: boolean
+      enum:
+      - false
+    message:
+      type: string
+    error:
+      $ref: ./common.yaml#/ErrorInfo

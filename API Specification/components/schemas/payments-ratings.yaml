@@ -1,0 +1,91 @@
+CreatePaymentRequest:
+  type: object
+  additionalProperties: false
+  required:
+  - payment_method
+  properties:
+    payment_method:
+      $ref: ./common.yaml#/PaymentMethod
+    simulated_result:
+      type: string
+      enum:
+      - SUCCESS
+      - FAILED
+      description: |
+        Chỉ dùng khi `payment_method` là `ELECTRONIC` để kiểm thử hai kết quả
+        của thanh toán mô phỏng. Không gửi trường này khi thanh toán `CASH`.
+CreateRatingRequest:
+  type: object
+  additionalProperties: false
+  required:
+  - score
+  properties:
+    score:
+      type: integer
+      minimum: 1
+      maximum: 5
+    comment:
+      type: string
+      maxLength: 500
+Payment:
+  type: object
+  required:
+  - id
+  - trip_id
+  - payment_method
+  - payment_status
+  - amount
+  - created_at
+  properties:
+    id:
+      type: string
+      example: payment_001
+    trip_id:
+      type: string
+      example: trip_001
+    payment_method:
+      $ref: ./common.yaml#/PaymentMethod
+    payment_status:
+      $ref: ./common.yaml#/PaymentStatus
+    amount:
+      type: number
+      format: double
+      minimum: 0
+      example: 37000
+    created_at:
+      type: string
+      format: date-time
+Rating:
+  type: object
+  required:
+  - id
+  - trip_id
+  - customer_id
+  - driver_id
+  - score
+  - created_at
+  properties:
+    id:
+      type: string
+      example: rating_001
+    trip_id:
+      type: string
+      example: trip_001
+    customer_id:
+      type: string
+      example: user_customer_001
+    driver_id:
+      type: string
+      example: driver_001
+    score:
+      type: integer
+      minimum: 1
+      maximum: 5
+      example: 5
+    comment:
+      type: string
+      nullable: true
+      example: Tài xế thân thiện và đến đúng giờ
+    created_at:
+      type: string
+      format: date-time

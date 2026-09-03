@@ -1,0 +1,261 @@
+UserResponse:
+  type: object
+  required:
+  - success
+  - message
+  - data
+  properties:
+    success:
+      type: boolean
+      enum:
+      - true
+    message:
+      type: string
+      example: Thao tác thành công
+    data:
+      $ref: ./authentication-profiles.yaml#/User
+AuthResponse:
+  type: object
+  required:
+  - success
+  - message
+  - data
+  properties:
+    success:
+      type: boolean
+      enum:
+      - true
+    message:
+      type: string
+      example: Đăng nhập thành công
+    data:
+      type: object
+      required:
+      - token
+      - user
+      properties:
+        token:
+          type: string
+          example: eyJhbGciOiJIUzI1NiJ9.example
+        user:
+          $ref: ./authentication-profiles.yaml#/User
+MyProfileResponse:
+  type: object
+  required:
+  - success
+  - message
+  - data
+  properties:
+    success:
+      type: boolean
+      enum:
+      - true
+    message:
+      type: string
+    data:
+      $ref: ./authentication-profiles.yaml#/MyProfile
+VehicleResponse:
+  type: object
+  required:
+  - success
+  - message
+  - data
+  properties:
+    success:
+      type: boolean
+      enum:
+      - true
+    message:
+      type: string
+    data:
+      $ref: ./authentication-profiles.yaml#/Vehicle
+DriverProfileResponse:
+  type: object
+  required:
+  - success
+  - message
+  - data
+  properties:
+    success:
+      type: boolean
+      enum:
+      - true
+    message:
+      type: string
+    data:
+      $ref: ./authentication-profiles.yaml#/DriverProfile
+DriverDetailsResponse:
+  type: object
+  required:
+  - success
+  - message
+  - data
+  properties:
+    success:
+      type: boolean
+      enum:
+      - true
+    message:
+      type: string
+    data:
+      $ref: ./authentication-profiles.yaml#/DriverDetails
+TripResponse:
+  type: object
+  required:
+  - success
+  - message
+  - data
+  properties:
+    success:
+      type: boolean
+      enum:
+      - true
+    message:
+      type: string
+    data:
+      $ref: ./trips-offers.yaml#/Trip
+DriverOfferResponse:
+  type: object
+  required:
+  - success
+  - message
+  - data
+  properties:
+    success:
+      type: boolean
+      enum:
+      - true
+    message:
+      type: string
+    data:
+      $ref: ./trips-offers.yaml#/DriverOffer
+PaymentResponse:
+  type: object
+  required:
+  - success
+  - message
+  - data
+  properties:
+    success:
+      type: boolean
+      enum:
+      - true
+    message:
+      type: string
+    data:
+      $ref: ./payments-ratings.yaml#/Payment
+RatingResponse:
+  type: object
+  required:
+  - success
+  - message
+  - data
+  properties:
+    success:
+      type: boolean
+      enum:
+      - true
+    message:
+      type: string
+    data:
+      $ref: ./payments-ratings.yaml#/Rating
+TripListResponse:
+  type: object
+  required:
+  - success
+  - message
+  - data
+  properties:
+    success:
+      type: boolean
+      enum:
+      - true
+    message:
+      type: string
+    data:
+      type: array
+      items:
+        $ref: ./trips-offers.yaml#/Trip
+NotificationListResponse:
+  type: object
+  required:
+  - success
+  - message
+  - data
+  properties:
+    success:
+      type: boolean
+      enum:
+      - true
+    message:
+      type: string
+    data:
+      type: array
+      items:
+        $ref: ./notifications-reports.yaml#/Notification
+UserListResponse:
+  type: object
+  required:
+  - success
+  - message
+  - data
+  properties:
+    success:
+      type: boolean
+      enum:
+      - true
+    message:
+      type: string
+    data:
+      type: array
+      items:
+        $ref: ./authentication-profiles.yaml#/User
+DriverListResponse:
+  type: object
+  required:
+  - success
+  - message
+  - data
+  properties:
+    success:
+      type: boolean
+      enum:
+      - true
+    message:
+      type: string
+    data:
+      type: array
+      items:
+        $ref: ./authentication-profiles.yaml#/DriverDetails
+VehicleListResponse:
+  type: object
+  required:
+  - success
+  - message
+  - data
+  properties:
+    success:
+      type: boolean
+      enum:
+      - true
+    message:
+      type: string
+    data:
+      type: array
+      items:
+        $ref: ./authentication-profiles.yaml#/Vehicle
+ReportResponse:
+  type: object
+  required:
+  - success
+  - message
+  - data
+  properties:
+    success:
+      type: boolean
+      enum:
+      - true
+    message:
+      type: string
+    data:
+      $ref: ./notifications-reports.yaml#/ReportSummary

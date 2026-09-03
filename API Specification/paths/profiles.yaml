@@ -1,0 +1,169 @@
+myProfile:
+  get:
+    tags:
+    - Profiles
+    summary: Xem hồ sơ của mình
+    description: Trả về hồ sơ của khách hàng hoặc tài xế đang đăng nhập.
+    operationId: getMyProfile
+    x-requirements:
+      fr:
+      - FR03
+      - FR04
+      - FR05
+      ac:
+      - AC03
+      - AC04
+      - AC05
+    responses:
+      '200':
+        description: Lấy hồ sơ thành công
+        content:
+          application/json:
+            schema:
+              $ref: ../components/schemas/response-wrappers.yaml#/MyProfileResponse
+      '401':
+        $ref: ../components/responses.yaml#/Unauthorized
+      '403':
+        $ref: ../components/responses.yaml#/Forbidden
+  patch:
+    tags:
+    - Profiles
+    summary: Cập nhật hồ sơ của mình
+    description: |
+      Khách hàng hoặc tài xế chỉ được sửa họ tên và số điện thoại của chính mình.
+      Không cho phép cập nhật hồ sơ người dùng khác.
+    operationId: updateMyProfile
+    x-requirements:
+      fr:
+      - FR03
+      - FR04
+      - FR05
+      ac:
+      - AC03
+      - AC04
+      - AC05
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: ../components/schemas/authentication-profiles.yaml#/UpdateProfileRequest
+          example:
+            full_name: Nguyễn Văn An
+            phone: '0912345678'
+    responses:
+      '200':
+        description: Cập nhật hồ sơ thành công
+        content:
+          application/json:
+            schema:
+              $ref: ../components/schemas/response-wrappers.yaml#/UserResponse
+      '400':
+        $ref: ../components/responses.yaml#/BadRequest
+      '401':
+        $ref: ../components/responses.yaml#/Unauthorized
+      '403':
+        $ref: ../components/responses.yaml#/Forbidden
+myVehicle:
+  get:
+    tags:
+    - Profiles
+    summary: Xem phương tiện của tài xế
+    operationId: getMyVehicle
+    x-requirements:
+      fr:
+      - FR05
+      ac:
+      - AC05
+    responses:
+      '200':
+        description: Lấy thông tin phương tiện thành công
+        content:
+          application/json:
+            schema:
+              $ref: ../components/schemas/response-wrappers.yaml#/VehicleResponse
+      '401':
+        $ref: ../components/responses.yaml#/Unauthorized
+      '403':
+        $ref: ../components/responses.yaml#/Forbidden
+      '404':
+        $ref: ../components/responses.yaml#/NotFound
+  put:
+    tags:
+    - Profiles
+    summary: Tạo hoặc cập nhật phương tiện của tài xế
+    description: |
+      Mỗi tài xế có tối đa một phương tiện. Biển số phải duy nhất và loại xe
+      phải là `MOTORBIKE` hoặc `CAR`.
+    operationId: upsertMyVehicle
+    x-requirements:
+      fr:
+      - FR05
+      ac:
+      - AC05
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: ../components/schemas/authentication-profiles.yaml#/VehicleRequest
+          example:
+            vehicle_type: MOTORBIKE
+            license_plate: 59A1-12345
+            brand: Honda Wave
+    responses:
+      '200':
+        description: Lưu phương tiện thành công
+        content:
+          application/json:
+            schema:
+              $ref: ../components/schemas/response-wrappers.yaml#/VehicleResponse
+      '400':
+        $ref: ../components/responses.yaml#/BadRequest
+      '401':
+        $ref: ../components/responses.yaml#/Unauthorized
+      '403':
+        $ref: ../components/responses.yaml#/Forbidden
+      '409':
+        description: Biển số đã được sử dụng
+        content:
+          application/json:
+            schema:
+              $ref: ../components/schemas/common.yaml#/ErrorResponse
+myDriverStatus:
+  patch:
+    tags:
+    - Profiles
+    summary: Cập nhật trạng thái hoạt động của tài xế
+    description: |
+      Tài xế có phương tiện hợp lệ được chuyển giữa `AVAILABLE` và `OFFLINE`.
+      Tài xế đang `BUSY` không thể tự chuyển sang `OFFLINE`.
+    operationId: updateMyDriverStatus
+    x-requirements:
+      fr:
+      - FR06
+      ac:
+      - AC06
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: ../components/schemas/authentication-profiles.yaml#/DriverStatusRequest
+          example:
+            driver_status: AVAILABLE
+    responses:
+      '200':
+        description: Cập nhật trạng thái thành công
+        content:
+          application/json:
+            schema:
+              $ref: ../components/schemas/response-wrappers.yaml#/DriverProfileResponse
+      '400':
+        $ref: ../components/responses.yaml#/BadRequest
+      '401':
+        $ref: ../components/responses.yaml#/Unauthorized
+      '403':
+        $ref: ../components/responses.yaml#/Forbidden
+      '409':
+        $ref: ../components/responses.yaml#/Conflict

@@ -1,0 +1,65 @@
+tripPayments:
+  parameters:
+  - $ref: ../components/parameters.yaml#/TripId
+  post:
+    tags:
+    - Payments
+    summary: Thanh toán chuyến đi
+    description: |
+      Chỉ khách hàng sở hữu chuyến `COMPLETED` mới được thanh toán.
+
+      - `CASH`: tạo giao dịch `SUCCESS` với số tiền bằng cước chuyến.
+      - `ELECTRONIC`: mô phỏng kết quả `SUCCESS` hoặc `FAILED`.
+
+      Giao dịch điện tử thất bại được lưu và khách hàng có thể thử lại hoặc
+      chuyển sang tiền mặt. Một chuyến chỉ có tối đa một giao dịch thành công.
+      API không nhận hoặc lưu thông tin thẻ/ngân hàng.
+    operationId: createPayment
+    x-requirements:
+      fr:
+      - FR18
+      - FR19
+      - FR20
+      - FR21
+      ac:
+      - AC18
+      - AC19
+      - AC20
+      - AC21
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: ../components/schemas/payments-ratings.yaml#/CreatePaymentRequest
+          examples:
+            cash:
+              summary: Thanh toán tiền mặt
+              value:
+                payment_method: CASH
+            electronicFailed:
+              summary: Mô phỏng thanh toán điện tử thất bại
+              value:
+                payment_method: ELECTRONIC
+                simulated_result: FAILED
+    responses:
+      '201':
+        description: Giao dịch được tạo; trạng thái có thể là SUCCESS hoặc FAILED
+        content:
+          application/json:
+            schema:
+              $ref: ../components/schemas/response-wrappers.yaml#/PaymentResponse
+      '400':
+        $ref: ../components/responses.yaml#/BadRequest
+      '401':
+        $ref: ../components/responses.yaml#/Unauthorized
+      '403':
+        $ref: ../components/responses.yaml#/Forbidden
+      '404':
+        $ref: ../components/responses.yaml#/NotFound
+      '409':
+        description: Chuyến chưa hoàn thành hoặc đã có giao dịch thành công
+        content:
+          application/json:
+            schema:
+              $ref: ../components/schemas/common.yaml#/ErrorResponse

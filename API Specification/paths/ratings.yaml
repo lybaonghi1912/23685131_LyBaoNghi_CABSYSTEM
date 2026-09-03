@@ -1,0 +1,47 @@
+tripRatings:
+  parameters:
+  - $ref: ../components/parameters.yaml#/TripId
+  post:
+    tags:
+    - Ratings
+    summary: Đánh giá tài xế
+    description: |
+      Khách hàng sở hữu chuyến được đánh giá đúng một lần sau khi chuyến
+      `COMPLETED`. Điểm phải là số nguyên từ 1 đến 5. Sau khi lưu, hệ thống
+      cập nhật điểm trung bình của tài xế.
+    operationId: rateDriver
+    x-requirements:
+      fr:
+      - FR24
+      ac:
+      - AC24
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: ../components/schemas/payments-ratings.yaml#/CreateRatingRequest
+          example:
+            score: 5
+            comment: Tài xế thân thiện và đến đúng giờ
+    responses:
+      '201':
+        description: Đánh giá được tạo thành công
+        content:
+          application/json:
+            schema:
+              $ref: ../components/schemas/response-wrappers.yaml#/RatingResponse
+      '400':
+        $ref: ../components/responses.yaml#/BadRequest
+      '401':
+        $ref: ../components/responses.yaml#/Unauthorized
+      '403':
+        $ref: ../components/responses.yaml#/Forbidden
+      '404':
+        $ref: ../components/responses.yaml#/NotFound
+      '409':
+        description: Chuyến chưa hoàn thành hoặc đã được đánh giá
+        content:
+          application/json:
+            schema:
+              $ref: ../components/schemas/common.yaml#/ErrorResponse

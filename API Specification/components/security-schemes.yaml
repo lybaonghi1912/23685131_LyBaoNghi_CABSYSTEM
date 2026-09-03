@@ -1,0 +1,4 @@
+bearerAuth:
+  type: http
+  scheme: bearer
+  description: Token nhận được sau khi đăng nhập

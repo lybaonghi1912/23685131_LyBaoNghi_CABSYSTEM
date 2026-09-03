@@ -1,0 +1,69 @@
+BadRequest:
+  description: Dữ liệu đầu vào thiếu hoặc không hợp lệ
+  content:
+    application/json:
+      schema:
+        $ref: ./schemas/common.yaml#/ErrorResponse
+      example:
+        success: false
+        message: Dữ liệu đầu vào không hợp lệ
+        error:
+          code: VALIDATION_ERROR
+          details:
+          - field: vehicle_type
+            message: Giá trị không hợp lệ
+Unauthorized:
+  description: Chưa đăng nhập hoặc token không hợp lệ
+  content:
+    application/json:
+      schema:
+        $ref: ./schemas/common.yaml#/ErrorResponse
+      example:
+        success: false
+        message: Bạn cần đăng nhập
+        error:
+          code: UNAUTHORIZED
+Forbidden:
+  description: Tài khoản không có quyền thực hiện chức năng
+  content:
+    application/json:
+      schema:
+        $ref: ./schemas/common.yaml#/ErrorResponse
+      example:
+        success: false
+        message: Bạn không có quyền thực hiện chức năng này
+        error:
+          code: FORBIDDEN
+NotFound:
+  description: Không tìm thấy dữ liệu yêu cầu
+  content:
+    application/json:
+      schema:
+        $ref: ./schemas/common.yaml#/ErrorResponse
+      example:
+        success: false
+        message: Không tìm thấy dữ liệu
+        error:
+          code: NOT_FOUND
+Conflict:
+  description: Thao tác xung đột với trạng thái hiện tại của dữ liệu
+  content:
+    application/json:
+      schema:
+        $ref: ./schemas/common.yaml#/ErrorResponse
+      example:
+        success: false
+        message: Không thể thực hiện thao tác ở trạng thái hiện tại
+        error:
+          code: STATE_CONFLICT
+InternalServerError:
+  description: Hệ thống không thể xử lý yêu cầu
+  content:
+    application/json:
+      schema:
+        $ref: ./schemas/common.yaml#/ErrorResponse
+      example:
+        success: false
+        message: Đã xảy ra lỗi hệ thống
+        error:
+          code: INTERNAL_SERVER_ERROR
