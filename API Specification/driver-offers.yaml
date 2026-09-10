@@ -1,7 +1,7 @@
 openapi: 3.0.3
 info:
   title: CAB System - Driver Offers API
-  version: 1.1.0
+  version: 1.1.1
   description: >-
     API đề xuất chuyến và phản hồi của tài xế. Đồng bộ với FR12-FR14, FR17, FR21
     và các AC liên quan trong srs.md.
@@ -17,7 +17,9 @@ paths:
       tags: [Driver Offers]
       summary: Xem đề xuất chuyến còn hiệu lực
       operationId: getCurrentDriverOffer
-      description: Chỉ DRIVER được xem offer PENDING thuộc chính mình và chưa hết hạn.
+      description: >-
+        Chỉ DRIVER được xem offer PENDING thuộc chính mình và chưa hết hạn. Response
+        gồm thông tin điểm đón, điểm đến, loại xe và khoảng cách để Driver quyết định.
       x-requirements:
         fr: [FR12]
         ac: [AC12]
@@ -105,6 +107,9 @@ components:
         application/json:
           schema: { $ref: '#/components/schemas/ErrorResponse' }
   schemas:
+    VehicleType:
+      type: string
+      enum: [MOTORBIKE, CAR]
     OfferStatus:
       type: string
       enum: [PENDING, ACCEPTED, REJECTED, EXPIRED, CANCELLED]
@@ -116,9 +121,23 @@ components:
         decision:
           type: string
           enum: [ACCEPT, REJECT]
+    TripOfferSummary:
+      type: object
+      required:
+        [id, vehicle_type, pickup_address, pickup_latitude, pickup_longitude, destination_address, destination_latitude, destination_longitude, distance_km]
+      properties:
+        id: { type: string, example: trip_001 }
+        vehicle_type: { $ref: '#/components/schemas/VehicleType' }
+        pickup_address: { type: string }
+        pickup_latitude: { type: number, format: double }
+        pickup_longitude: { type: number, format: double }
+        destination_address: { type: string }
+        destination_latitude: { type: number, format: double }
+        destination_longitude: { type: number, format: double }
+        distance_km: { type: number, format: double, minimum: 0 }
     DriverOffer:
       type: object
-      required: [id, trip_id, driver_id, offer_status, expires_at]
+      required: [id, trip_id, driver_id, offer_status, expires_at, trip]
       properties:
         id: { type: string, example: offer_001 }
         trip_id: { type: string, example: trip_001 }
@@ -126,6 +145,7 @@ components:
         offer_status: { $ref: '#/components/schemas/OfferStatus' }
         expires_at: { type: string, format: date-time }
         responded_at: { type: string, format: date-time, nullable: true }
+        trip: { $ref: '#/components/schemas/TripOfferSummary' }
     ErrorInfo:
       type: object
       required: [code]
