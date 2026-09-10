@@ -1,414 +1,154 @@
 openapi: 3.0.3
 info:
   title: CAB System - Driver Offers API
-  version: 1.0.0
-  description: 'API Specification cho CAB System MVP, được xây dựng từ Functional Requirement
-
-    FR01–FR27 và Acceptance Criteria AC01–AC27 trong `srs.md`.
-
-
-    Các xử lý tự động như lọc và sắp xếp tài xế, tạo đề xuất chuyến, tính cước,
-
-    đồng bộ trạng thái tài xế và tạo thông báo được thực hiện bên trong các API
-
-    nghiệp vụ liên quan, không tách thành API công khai riêng.
-
-    '
+  version: 1.1.0
+  description: >-
+    API đề xuất chuyến và phản hồi của tài xế. Đồng bộ với FR12-FR14, FR17, FR21
+    và các AC liên quan trong srs.md.
 servers:
-- url: http://localhost:3000/api/v1
-  description: Máy chủ phát triển cục bộ
+  - url: http://localhost:3000/api/v1
 security:
-- bearerAuth: []
+  - bearerAuth: []
 tags:
-- name: Driver Offers
-  description: Đề xuất chuyến và phản hồi của tài xế
+  - name: Driver Offers
 paths:
   /driver-offers/current:
     get:
-      tags:
-      - Driver Offers
+      tags: [Driver Offers]
       summary: Xem đề xuất chuyến còn hiệu lực
-      description: 'Trả về đề xuất `PENDING` dành cho tài xế đang đăng nhập, bao gồm chuyến
-
-        và thời điểm hết hạn phản hồi.
-
-        '
       operationId: getCurrentDriverOffer
+      description: Chỉ DRIVER được xem offer PENDING thuộc chính mình và chưa hết hạn.
       x-requirements:
-        fr:
-        - FR12
-        ac:
-        - AC12
+        fr: [FR12]
+        ac: [AC12]
       responses:
         '200':
-          description: Lấy đề xuất chuyến thành công
+          description: Lấy offer thành công
           content:
             application/json:
-              schema:
-                $ref: '#/components/schemas/DriverOfferResponse'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
+              schema: { $ref: '#/components/schemas/DriverOfferResponse' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
         '404':
-          description: Không có đề xuất chuyến còn hiệu lực
+          description: Không có offer còn hiệu lực
           content:
             application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+
   /driver-offers/{offerId}/response:
     parameters:
-    - $ref: '#/components/parameters/OfferId'
+      - $ref: '#/components/parameters/OfferId'
     post:
-      tags:
-      - Driver Offers
+      tags: [Driver Offers]
       summary: Chấp nhận hoặc từ chối đề xuất chuyến
-      description: 'Tài xế phản hồi đề xuất còn hiệu lực trong 30 giây.
-
-
-        - `ACCEPT`: phân công tài xế, chuyển chuyến sang `ACCEPTED` và tài xế sang `BUSY`.
-
-        - `REJECT`: ghi nhận từ chối và hệ thống tự chuyển sang tài xế tiếp theo.
-
-        - Hết hạn: hệ thống đánh dấu `EXPIRED` và tự chuyển sang tài xế tiếp theo.
-
-        - Hết tài xế phù hợp: chuyến chuyển sang `NO_DRIVER` và thông báo khách hàng.
-
-        '
       operationId: respondToDriverOffer
+      description: >-
+        Offer chỉ được phản hồi một lần khi còn PENDING, chưa quá expires_at, trip vẫn SEARCHING
+        và Driver vẫn AVAILABLE. ACCEPT gán tài xế và chuyển Driver BUSY. REJECT chuyển sang
+        tài xế tiếp theo. Nếu sau 30 giây offer vẫn PENDING, hệ thống tự chuyển EXPIRED và tìm
+        ứng viên tiếp theo. Offer CANCELLED xuất hiện khi Customer hủy trip SEARCHING.
       x-requirements:
-        fr:
-        - FR13
-        - FR14
-        - FR17
-        - FR21
-        ac:
-        - AC13
-        - AC14
-        - AC17
-        - AC21
+        fr: [FR13, FR14, FR17, FR21]
+        ac: [AC13, AC14, AC17, AC21]
       requestBody:
         required: true
         content:
           application/json:
-            schema:
-              $ref: '#/components/schemas/OfferDecisionRequest'
-            example:
-              decision: ACCEPT
+            schema: { $ref: '#/components/schemas/OfferDecisionRequest' }
       responses:
         '200':
           description: Phản hồi được ghi nhận
           content:
             application/json:
-              schema:
-                $ref: '#/components/schemas/DriverOfferResponse'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
+              schema: { $ref: '#/components/schemas/DriverOfferResponse' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
         '409':
-          description: Đề xuất đã được phản hồi hoặc đã hết hạn
+          description: Offer không còn hiệu lực, trip không còn SEARCHING hoặc Driver không còn AVAILABLE
           content:
             application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+
 components:
   securitySchemes:
     bearerAuth:
       type: http
       scheme: bearer
-      description: Token nhận được sau khi đăng nhập
+      bearerFormat: JWT
   parameters:
     OfferId:
       name: offerId
       in: path
       required: true
-      description: Mã đề xuất chuyến
-      schema:
-        type: string
-      example: offer_001
+      schema: { type: string }
   responses:
     BadRequest:
-      description: Dữ liệu đầu vào thiếu hoặc không hợp lệ
+      description: Dữ liệu đầu vào không hợp lệ
       content:
         application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorResponse'
-          example:
-            success: false
-            message: Dữ liệu đầu vào không hợp lệ
-            error:
-              code: VALIDATION_ERROR
-              details:
-              - field: vehicle_type
-                message: Giá trị không hợp lệ
+          schema: { $ref: '#/components/schemas/ErrorResponse' }
     Unauthorized:
       description: Chưa đăng nhập hoặc token không hợp lệ
       content:
         application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorResponse'
-          example:
-            success: false
-            message: Bạn cần đăng nhập
-            error:
-              code: UNAUTHORIZED
+          schema: { $ref: '#/components/schemas/ErrorResponse' }
     Forbidden:
-      description: Tài khoản không có quyền thực hiện chức năng
+      description: Không đúng vai trò hoặc offer không thuộc tài xế hiện tại
       content:
         application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorResponse'
-          example:
-            success: false
-            message: Bạn không có quyền thực hiện chức năng này
-            error:
-              code: FORBIDDEN
+          schema: { $ref: '#/components/schemas/ErrorResponse' }
     NotFound:
-      description: Không tìm thấy dữ liệu yêu cầu
+      description: Không tìm thấy offer
       content:
         application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorResponse'
-          example:
-            success: false
-            message: Không tìm thấy dữ liệu
-            error:
-              code: NOT_FOUND
+          schema: { $ref: '#/components/schemas/ErrorResponse' }
   schemas:
-    VehicleType:
-      type: string
-      enum:
-      - MOTORBIKE
-      - CAR
-    TripStatus:
-      type: string
-      enum:
-      - SEARCHING
-      - ACCEPTED
-      - ARRIVED
-      - IN_PROGRESS
-      - COMPLETED
-      - CANCELLED
-      - NO_DRIVER
     OfferStatus:
       type: string
-      enum:
-      - PENDING
-      - ACCEPTED
-      - REJECTED
-      - EXPIRED
+      enum: [PENDING, ACCEPTED, REJECTED, EXPIRED, CANCELLED]
     OfferDecisionRequest:
       type: object
       additionalProperties: false
-      required:
-      - decision
+      required: [decision]
       properties:
         decision:
           type: string
-          enum:
-          - ACCEPT
-          - REJECT
-    Vehicle:
-      type: object
-      required:
-      - id
-      - driver_id
-      - vehicle_type
-      - license_plate
-      properties:
-        id:
-          type: string
-          example: vehicle_001
-        driver_id:
-          type: string
-          example: driver_001
-        vehicle_type:
-          $ref: '#/components/schemas/VehicleType'
-        license_plate:
-          type: string
-          example: 59A1-12345
-        brand:
-          type: string
-          nullable: true
-          example: Honda Wave
-    DriverSummary:
-      type: object
-      required:
-      - id
-      - full_name
-      - phone
-      - average_rating
-      - vehicle
-      properties:
-        id:
-          type: string
-          example: driver_001
-        full_name:
-          type: string
-          example: Trần Văn Bình
-        phone:
-          type: string
-          example: 0987654321
-        average_rating:
-          type: number
-          format: double
-          example: 4.8
-        vehicle:
-          $ref: '#/components/schemas/Vehicle'
-    Trip:
-      type: object
-      required:
-      - id
-      - customer_id
-      - vehicle_type
-      - pickup_address
-      - pickup_latitude
-      - pickup_longitude
-      - destination_address
-      - destination_latitude
-      - destination_longitude
-      - distance_km
-      - trip_status
-      - fare_amount
-      - created_at
-      properties:
-        id:
-          type: string
-          example: trip_001
-        customer_id:
-          type: string
-          example: user_customer_001
-        driver_id:
-          type: string
-          nullable: true
-          example: driver_001
-        driver:
-          allOf:
-          - $ref: '#/components/schemas/DriverSummary'
-          nullable: true
-        vehicle_type:
-          $ref: '#/components/schemas/VehicleType'
-        pickup_address:
-          type: string
-        pickup_latitude:
-          type: number
-          format: double
-        pickup_longitude:
-          type: number
-          format: double
-        destination_address:
-          type: string
-        destination_latitude:
-          type: number
-          format: double
-        destination_longitude:
-          type: number
-          format: double
-        distance_km:
-          type: number
-          format: double
-          minimum: 0
-        trip_status:
-          $ref: '#/components/schemas/TripStatus'
-        fare_amount:
-          type: number
-          format: double
-          minimum: 0
-          description: 'Bằng 0 trước khi hoàn thành. Khi `COMPLETED`:
-
-            `MOTORBIKE = 10000 + distance_km × 5000`;
-
-            `CAR = 20000 + distance_km × 10000`.
-
-            '
-          example: 37000
-        created_at:
-          type: string
-          format: date-time
-        completed_at:
-          type: string
-          format: date-time
-          nullable: true
+          enum: [ACCEPT, REJECT]
     DriverOffer:
       type: object
-      required:
-      - id
-      - trip_id
-      - driver_id
-      - offer_status
-      - expires_at
+      required: [id, trip_id, driver_id, offer_status, expires_at]
       properties:
-        id:
-          type: string
-          example: offer_001
-        trip_id:
-          type: string
-          example: trip_001
-        driver_id:
-          type: string
-          example: driver_001
-        offer_status:
-          $ref: '#/components/schemas/OfferStatus'
-        expires_at:
-          type: string
-          format: date-time
-        responded_at:
-          type: string
-          format: date-time
-          nullable: true
-        trip:
-          $ref: '#/components/schemas/Trip'
-    ValidationDetail:
-      type: object
-      properties:
-        field:
-          type: string
-        message:
-          type: string
+        id: { type: string, example: offer_001 }
+        trip_id: { type: string, example: trip_001 }
+        driver_id: { type: string, example: driver_001 }
+        offer_status: { $ref: '#/components/schemas/OfferStatus' }
+        expires_at: { type: string, format: date-time }
+        responded_at: { type: string, format: date-time, nullable: true }
     ErrorInfo:
       type: object
-      required:
-      - code
+      required: [code]
       properties:
-        code:
-          type: string
-          example: VALIDATION_ERROR
+        code: { type: string }
         details:
           type: array
           items:
-            $ref: '#/components/schemas/ValidationDetail'
+            type: object
+            properties:
+              field: { type: string }
+              message: { type: string }
     ErrorResponse:
       type: object
-      required:
-      - success
-      - message
-      - error
+      required: [success, message, error]
       properties:
-        success:
-          type: boolean
-          enum:
-          - false
-        message:
-          type: string
-        error:
-          $ref: '#/components/schemas/ErrorInfo'
+        success: { type: boolean, enum: [false] }
+        message: { type: string }
+        error: { $ref: '#/components/schemas/ErrorInfo' }
     DriverOfferResponse:
       type: object
-      required:
-      - success
-      - message
-      - data
+      required: [success, message, data]
       properties:
-        success:
-          type: boolean
-          enum:
-          - true
-        message:
-          type: string
-        data:
-          $ref: '#/components/schemas/DriverOffer'
+        success: { type: boolean, enum: [true] }
+        message: { type: string }
+        data: { $ref: '#/components/schemas/DriverOffer' }
