@@ -1036,15 +1036,4 @@ Cột **Test Case** được giữ để hoàn thiện ở bước kiểm thử 
 | BG05 | BR09 | FR26 | UC16 | AC26 | Chưa xây dựng |
 | BG05 | BR09 | FR27 | UC17 | AC27 | Chưa xây dựng |
 
-### 14.3. Trạng thái tài liệu trước khi thiết kế Test Case
 
-SRS được xem là **đủ điều kiện để chuyển sang bước audit API Specification** khi:
-
-- 27 FR đều có AC và Use Case/hành vi tương ứng.
-- Rule về vị trí tài xế, offer timeout, hủy chuyến, payment và rating đã được xác định rõ.
-- Operator được thống nhất là read-only.
-- Data Model có `cancel_reason` và trạng thái `DRIVER_OFFER.CANCELLED`.
-- Lịch sử khách hàng được xác định là lịch sử chuyến kèm payment summary.
-- Test Case chưa được gán trước khi API Specification được đồng bộ.
-
-Sau khi các file YAML phản ánh đúng các yêu cầu trên, mới bắt đầu xây dựng Test Case positive và negative dựa trên từng ngữ cảnh nghiệp vụ, input, output kỳ vọng, status code và business rule tương ứng.
