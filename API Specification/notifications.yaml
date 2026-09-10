@@ -1,169 +1,101 @@
 openapi: 3.0.3
 info:
   title: CAB System - Notifications API
-  version: 1.0.0
-  description: 'API Specification cho CAB System MVP, được xây dựng từ Functional Requirement
-
-    FR01–FR27 và Acceptance Criteria AC01–AC27 trong `srs.md`.
-
-
-    Các xử lý tự động như lọc và sắp xếp tài xế, tạo đề xuất chuyến, tính cước,
-
-    đồng bộ trạng thái tài xế và tạo thông báo được thực hiện bên trong các API
-
-    nghiệp vụ liên quan, không tách thành API công khai riêng.
-
-    '
+  version: 1.1.0
+  description: >-
+    API xem thông báo của Customer và Driver. MVP chỉ yêu cầu đọc danh sách thông báo,
+    không quản lý trạng thái đã đọc. Đồng bộ với FR21-FR22 và AC21-AC22 trong srs.md.
 servers:
-- url: http://localhost:3000/api/v1
-  description: Máy chủ phát triển cục bộ
+  - url: http://localhost:3000/api/v1
 security:
-- bearerAuth: []
+  - bearerAuth: []
 tags:
-- name: Notifications
-  description: Thông báo của khách hàng và tài xế
+  - name: Notifications
 paths:
   /notifications:
     get:
-      tags:
-      - Notifications
+      tags: [Notifications]
       summary: Xem danh sách thông báo của tài khoản
-      description: 'Chỉ trả về thông báo thuộc tài khoản đang đăng nhập, sắp xếp mới nhất trước.
-
-        Thông báo được hệ thống tạo khi có thay đổi quan trọng về tìm tài xế,
-
-        trạng thái chuyến hoặc thanh toán.
-
-        '
       operationId: getMyNotifications
+      description: >-
+        Chỉ trả notification thuộc user đang đăng nhập, sắp xếp mới nhất trước.
+        Notification được hệ thống tạo khi có các sự kiện nghiệp vụ quan trọng.
       x-requirements:
-        fr:
-        - FR21
-        - FR22
-        ac:
-        - AC21
-        - AC22
+        fr: [FR21, FR22]
+        ac: [AC21, AC22]
       responses:
         '200':
-          description: Lấy danh sách thông báo thành công; có thể trả về mảng rỗng
+          description: Lấy danh sách thành công; có thể là mảng rỗng
           content:
             application/json:
-              schema:
-                $ref: '#/components/schemas/NotificationListResponse'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
+              schema: { $ref: '#/components/schemas/NotificationListResponse' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+
 components:
   securitySchemes:
     bearerAuth:
       type: http
       scheme: bearer
-      description: Token nhận được sau khi đăng nhập
+      bearerFormat: JWT
   responses:
     Unauthorized:
       description: Chưa đăng nhập hoặc token không hợp lệ
       content:
         application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorResponse'
-          example:
-            success: false
-            message: Bạn cần đăng nhập
-            error:
-              code: UNAUTHORIZED
+          schema: { $ref: '#/components/schemas/ErrorResponse' }
     Forbidden:
-      description: Tài khoản không có quyền thực hiện chức năng
+      description: Vai trò không được phép sử dụng chức năng
       content:
         application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorResponse'
-          example:
-            success: false
-            message: Bạn không có quyền thực hiện chức năng này
-            error:
-              code: FORBIDDEN
+          schema: { $ref: '#/components/schemas/ErrorResponse' }
   schemas:
+    NotificationType:
+      type: string
+      enum:
+        - TRIP_REQUEST_RECEIVED
+        - NEW_DRIVER_OFFER
+        - DRIVER_FOUND
+        - NO_DRIVER
+        - TRIP_STATUS_CHANGED
+        - TRIP_CANCELLED
+        - PAYMENT_SUCCESS
+        - PAYMENT_FAILED
     Notification:
       type: object
-      required:
-      - id
-      - user_id
-      - notification_type
-      - message
-      - is_read
-      - created_at
+      required: [id, user_id, notification_type, message, created_at]
       properties:
-        id:
-          type: string
-          example: notification_001
-        user_id:
-          type: string
-          example: user_customer_001
-        trip_id:
-          type: string
-          nullable: true
-          example: trip_001
-        notification_type:
-          type: string
-          example: DRIVER_FOUND
-        message:
-          type: string
-          example: Đã tìm thấy tài xế cho chuyến của bạn
-        is_read:
-          type: boolean
-          default: false
-        created_at:
-          type: string
-          format: date-time
-    ValidationDetail:
-      type: object
-      properties:
-        field:
-          type: string
-        message:
-          type: string
+        id: { type: string, example: notification_001 }
+        user_id: { type: string, example: user_customer_001 }
+        trip_id: { type: string, nullable: true, example: trip_001 }
+        notification_type: { $ref: '#/components/schemas/NotificationType' }
+        message: { type: string }
+        created_at: { type: string, format: date-time }
     ErrorInfo:
       type: object
-      required:
-      - code
+      required: [code]
       properties:
-        code:
-          type: string
-          example: VALIDATION_ERROR
+        code: { type: string }
         details:
           type: array
           items:
-            $ref: '#/components/schemas/ValidationDetail'
+            type: object
+            properties:
+              field: { type: string }
+              message: { type: string }
     ErrorResponse:
       type: object
-      required:
-      - success
-      - message
-      - error
+      required: [success, message, error]
       properties:
-        success:
-          type: boolean
-          enum:
-          - false
-        message:
-          type: string
-        error:
-          $ref: '#/components/schemas/ErrorInfo'
+        success: { type: boolean, enum: [false] }
+        message: { type: string }
+        error: { $ref: '#/components/schemas/ErrorInfo' }
     NotificationListResponse:
       type: object
-      required:
-      - success
-      - message
-      - data
+      required: [success, message, data]
       properties:
-        success:
-          type: boolean
-          enum:
-          - true
-        message:
-          type: string
+        success: { type: boolean, enum: [true] }
+        message: { type: string }
         data:
           type: array
-          items:
-            $ref: '#/components/schemas/Notification'
+          items: { $ref: '#/components/schemas/Notification' }
