@@ -1,72 +1,57 @@
 openapi: 3.0.3
 info:
   title: CAB System - Authentication API
-  version: 1.0.0
-  description: 'API Specification cho CAB System MVP, được xây dựng từ Functional Requirement
-
-    FR01–FR27 và Acceptance Criteria AC01–AC27 trong `srs.md`.
-
-
-    Các xử lý tự động như lọc và sắp xếp tài xế, tạo đề xuất chuyến, tính cước,
-
-    đồng bộ trạng thái tài xế và tạo thông báo được thực hiện bên trong các API
-
-    nghiệp vụ liên quan, không tách thành API công khai riêng.
-
-    '
+  version: 1.1.0
+  description: >-
+    API đăng ký và đăng nhập của CAB System MVP. Đồng bộ với FR01-FR03 và
+    AC01-AC03 trong srs.md. CUSTOMER và DRIVER được tự đăng ký; OPERATOR
+    dùng tài khoản được tạo sẵn trong dữ liệu MVP.
 servers:
-- url: http://localhost:3000/api/v1
-  description: Máy chủ phát triển cục bộ
+  - url: http://localhost:3000/api/v1
+    description: Máy chủ phát triển cục bộ
 security:
-- bearerAuth: []
+  - bearerAuth: []
 tags:
-- name: Authentication
-  description: Đăng ký, đăng nhập và cấp phiên xác thực
+  - name: Authentication
+    description: Đăng ký, đăng nhập và cấp token xác thực
 paths:
   /auth/register:
     post:
-      tags:
-      - Authentication
+      tags: [Authentication]
       summary: Đăng ký tài khoản
-      description: 'Cho phép khách hàng hoặc tài xế tạo tài khoản. Email phải duy nhất và
-
-        vai trò đăng ký chỉ được là `CUSTOMER` hoặc `DRIVER`.
-
-        '
       operationId: register
       security: []
+      description: >-
+        Cho phép CUSTOMER hoặc DRIVER tạo tài khoản. Email phải duy nhất và role
+        chỉ được là CUSTOMER hoặc DRIVER. Nếu đăng ký DRIVER thành công, hệ thống
+        đồng thời tạo DRIVER_PROFILE mặc định với driver_status = OFFLINE,
+        current_latitude/current_longitude = null và average_rating = 0.
       x-requirements:
-        fr:
-        - FR01
-        ac:
-        - AC01
+        fr: [FR01]
+        ac: [AC01]
       requestBody:
         required: true
         content:
           application/json:
-            schema:
-              $ref: '#/components/schemas/RegisterRequest'
+            schema: { $ref: '#/components/schemas/RegisterRequest' }
             example:
               full_name: Nguyễn Văn An
               email: an@example.com
               password: Secret123
-              phone: 0901234567
-              role: CUSTOMER
+              phone: '0901234567'
+              role: DRIVER
       responses:
         '201':
           description: Tạo tài khoản thành công
           content:
             application/json:
-              schema:
-                $ref: '#/components/schemas/UserResponse'
-        '400':
-          $ref: '#/components/responses/BadRequest'
+              schema: { $ref: '#/components/schemas/UserResponse' }
+        '400': { $ref: '#/components/responses/BadRequest' }
         '409':
           description: Email đã tồn tại
           content:
             application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
               example:
                 success: false
                 message: Email đã tồn tại
@@ -74,29 +59,21 @@ paths:
                   code: EMAIL_ALREADY_EXISTS
   /auth/login:
     post:
-      tags:
-      - Authentication
+      tags: [Authentication]
       summary: Đăng nhập
-      description: 'Xác thực email và mật khẩu, sau đó trả về token cùng thông tin người dùng.
-
-        Token được dùng để kiểm soát quyền theo `CUSTOMER`, `DRIVER` và `OPERATOR`.
-
-        '
       operationId: login
       security: []
+      description: >-
+        Xác thực email và mật khẩu, sau đó trả token cùng thông tin người dùng.
+        Thông báo đăng nhập sai không tiết lộ email hay mật khẩu nào không đúng.
       x-requirements:
-        fr:
-        - FR02
-        - FR03
-        ac:
-        - AC02
-        - AC03
+        fr: [FR02, FR03]
+        ac: [AC02, AC03]
       requestBody:
         required: true
         content:
           application/json:
-            schema:
-              $ref: '#/components/schemas/LoginRequest'
+            schema: { $ref: '#/components/schemas/LoginRequest' }
             example:
               email: an@example.com
               password: Secret123
@@ -105,16 +82,13 @@ paths:
           description: Đăng nhập thành công
           content:
             application/json:
-              schema:
-                $ref: '#/components/schemas/AuthResponse'
-        '400':
-          $ref: '#/components/responses/BadRequest'
+              schema: { $ref: '#/components/schemas/AuthResponse' }
+        '400': { $ref: '#/components/responses/BadRequest' }
         '401':
           description: Email hoặc mật khẩu không đúng
           content:
             application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
               example:
                 success: false
                 message: Email hoặc mật khẩu không đúng
@@ -125,43 +99,33 @@ components:
     bearerAuth:
       type: http
       scheme: bearer
+      bearerFormat: JWT
       description: Token nhận được sau khi đăng nhập
   responses:
     BadRequest:
       description: Dữ liệu đầu vào thiếu hoặc không hợp lệ
       content:
         application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorResponse'
+          schema: { $ref: '#/components/schemas/ErrorResponse' }
           example:
             success: false
             message: Dữ liệu đầu vào không hợp lệ
             error:
               code: VALIDATION_ERROR
               details:
-              - field: vehicle_type
-                message: Giá trị không hợp lệ
+                - field: email
+                  message: Email không hợp lệ
   schemas:
     UserRole:
       type: string
-      enum:
-      - CUSTOMER
-      - DRIVER
-      - OPERATOR
+      enum: [CUSTOMER, DRIVER, OPERATOR]
     RegisterRole:
       type: string
-      enum:
-      - CUSTOMER
-      - DRIVER
+      enum: [CUSTOMER, DRIVER]
     RegisterRequest:
       type: object
       additionalProperties: false
-      required:
-      - full_name
-      - email
-      - password
-      - phone
-      - role
+      required: [full_name, email, password, phone, role]
       properties:
         full_name:
           type: string
@@ -184,9 +148,7 @@ components:
     LoginRequest:
       type: object
       additionalProperties: false
-      required:
-      - email
-      - password
+      required: [email, password]
       properties:
         email:
           type: string
@@ -197,105 +159,52 @@ components:
           writeOnly: true
     User:
       type: object
-      required:
-      - id
-      - full_name
-      - email
-      - phone
-      - role
-      - created_at
+      required: [id, full_name, email, phone, role, created_at]
       properties:
-        id:
-          type: string
-          example: user_001
-        full_name:
-          type: string
-          example: Nguyễn Văn An
-        email:
-          type: string
-          format: email
-          example: an@example.com
-        phone:
-          type: string
-          example: 0901234567
-        role:
-          $ref: '#/components/schemas/UserRole'
-        created_at:
-          type: string
-          format: date-time
-      description: Mật khẩu và password_hash không bao giờ được trả về trong API.
-    ValidationDetail:
-      type: object
-      properties:
-        field:
-          type: string
-        message:
-          type: string
+        id: { type: string, example: user_001 }
+        full_name: { type: string, example: Nguyễn Văn An }
+        email: { type: string, format: email, example: an@example.com }
+        phone: { type: string, example: '0901234567' }
+        role: { $ref: '#/components/schemas/UserRole' }
+        created_at: { type: string, format: date-time }
+      description: password/password_hash không bao giờ được trả về qua API.
     ErrorInfo:
       type: object
-      required:
-      - code
+      required: [code]
       properties:
-        code:
-          type: string
-          example: VALIDATION_ERROR
+        code: { type: string, example: VALIDATION_ERROR }
         details:
           type: array
           items:
-            $ref: '#/components/schemas/ValidationDetail'
+            type: object
+            properties:
+              field: { type: string }
+              message: { type: string }
     ErrorResponse:
       type: object
-      required:
-      - success
-      - message
-      - error
+      required: [success, message, error]
       properties:
-        success:
-          type: boolean
-          enum:
-          - false
-        message:
-          type: string
-        error:
-          $ref: '#/components/schemas/ErrorInfo'
+        success: { type: boolean, enum: [false] }
+        message: { type: string }
+        error: { $ref: '#/components/schemas/ErrorInfo' }
     UserResponse:
       type: object
-      required:
-      - success
-      - message
-      - data
+      required: [success, message, data]
       properties:
-        success:
-          type: boolean
-          enum:
-          - true
-        message:
-          type: string
-          example: Thao tác thành công
-        data:
-          $ref: '#/components/schemas/User'
+        success: { type: boolean, enum: [true] }
+        message: { type: string }
+        data: { $ref: '#/components/schemas/User' }
     AuthResponse:
       type: object
-      required:
-      - success
-      - message
-      - data
+      required: [success, message, data]
       properties:
-        success:
-          type: boolean
-          enum:
-          - true
-        message:
-          type: string
-          example: Đăng nhập thành công
+        success: { type: boolean, enum: [true] }
+        message: { type: string, example: Đăng nhập thành công }
         data:
           type: object
-          required:
-          - token
-          - user
+          required: [token, user]
           properties:
             token:
               type: string
               example: eyJhbGciOiJIUzI1NiJ9.example
-            user:
-              $ref: '#/components/schemas/User'
+            user: { $ref: '#/components/schemas/User' }
