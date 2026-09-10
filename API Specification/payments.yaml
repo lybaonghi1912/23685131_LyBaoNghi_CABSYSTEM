@@ -1,7 +1,7 @@
 openapi: 3.0.3
 info:
   title: CAB System - Payments API
-  version: 1.1.0
+  version: 1.1.1
   description: >-
     API thanh toán cho chuyến đã hoàn thành. Đồng bộ với FR18-FR20, FR21 và AC18-AC21.
 servers:
@@ -22,7 +22,8 @@ paths:
         Chỉ CUSTOMER sở hữu trip COMPLETED được thanh toán. Một trip có thể có nhiều
         payment FAILED nhưng tối đa một SUCCESS. Amount luôn lấy từ fare_amount của trip,
         không nhận từ client. CASH luôn SUCCESS. ELECTRONIC yêu cầu simulated_result để
-        mô phỏng SUCCESS hoặc FAILED.
+        mô phỏng SUCCESS hoặc FAILED. Trạng thái PENDING được giữ trong data model cho bước
+        xử lý trung gian, nhưng response cuối của thao tác mô phỏng trả SUCCESS hoặc FAILED.
       x-requirements:
         fr: [FR18, FR19, FR20, FR21]
         ac: [AC18, AC19, AC20, AC21]
@@ -125,7 +126,7 @@ components:
       enum: [CASH, ELECTRONIC]
     PaymentStatus:
       type: string
-      enum: [SUCCESS, FAILED]
+      enum: [PENDING, SUCCESS, FAILED]
     Payment:
       type: object
       required: [id, trip_id, payment_method, payment_status, amount, created_at]
