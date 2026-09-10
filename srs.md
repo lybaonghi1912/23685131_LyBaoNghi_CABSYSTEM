@@ -1,8 +1,4 @@
 # PHÂN TÍCH YÊU CẦU HỆ THỐNG CAB SYSTEM
-
-> **Phiên bản:** MVP – bản đã audit trước khi xây dựng Test Case  
-> **Mục tiêu tài liệu:** bảo đảm chuỗi truy xuất `Business Context → Business Goal → Scope → Business Requirement → Business Process → Functional Requirement → Business Rule/Exception → Data Model → NFR → Use Case → Acceptance Criteria → RTM` nhất quán trước khi thiết kế Test Case và đồng bộ API Specification.
-
 ---
 
 ## Bước 1. Phân tích sơ khởi và ngữ cảnh nghiệp vụ
