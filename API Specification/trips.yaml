@@ -1,74 +1,33 @@
 openapi: 3.0.3
 info:
   title: CAB System - Trips API
-  version: 1.0.0
-  description: 'API Specification cho CAB System MVP, được xây dựng từ Functional Requirement
-
-    FR01–FR27 và Acceptance Criteria AC01–AC27 trong `srs.md`.
-
-
-    Các xử lý tự động như lọc và sắp xếp tài xế, tạo đề xuất chuyến, tính cước,
-
-    đồng bộ trạng thái tài xế và tạo thông báo được thực hiện bên trong các API
-
-    nghiệp vụ liên quan, không tách thành API công khai riêng.
-
-    '
+  version: 1.1.0
+  description: >-
+    API đặt xe, theo dõi, hủy, cập nhật trạng thái và xem lịch sử chuyến.
+    Đồng bộ với FR07-FR18, FR21, FR23 và các AC liên quan trong srs.md.
 servers:
-- url: http://localhost:3000/api/v1
-  description: Máy chủ phát triển cục bộ
+  - url: http://localhost:3000/api/v1
 security:
-- bearerAuth: []
+  - bearerAuth: []
 tags:
-- name: Trips
-  description: Đặt, theo dõi, hủy và cập nhật chuyến đi
+  - name: Trips
 paths:
   /trips:
     post:
-      tags:
-      - Trips
+      tags: [Trips]
       summary: Tạo yêu cầu đặt xe
-      description: 'Khách hàng gửi điểm đón, điểm đến, loại xe và khoảng cách giả lập.
-
-        Hệ thống tạo chuyến ở trạng thái `SEARCHING`, sau đó tự động:
-
-
-        1. Lọc tài xế `AVAILABLE`, có phương tiện đúng loại và ở trong bán kính 5 km.
-
-        2. Ưu tiên khoảng cách gần hơn; nếu bằng nhau thì ưu tiên rating cao hơn.
-
-        3. Tạo `DRIVER_OFFER` ở trạng thái `PENDING` với thời hạn 30 giây và gửi thông báo.
-
-        4. Nếu không còn tài xế phù hợp, chuyển chuyến sang `NO_DRIVER` và thông báo khách hàng.
-
-
-        Khách hàng không được tạo chuyến mới khi đang có một chuyến chưa kết thúc.
-
-        '
       operationId: createTrip
+      description: >-
+        Chỉ CUSTOMER được tạo chuyến. Hệ thống tạo TRIP ở SEARCHING và kích hoạt
+        quá trình tìm tài xế phù hợp. Customer không được có một active trip khác.
       x-requirements:
-        fr:
-        - FR07
-        - FR08
-        - FR10
-        - FR11
-        - FR12
-        - FR14
-        - FR21
-        ac:
-        - AC07
-        - AC08
-        - AC10
-        - AC11
-        - AC12
-        - AC14
-        - AC21
+        fr: [FR07, FR08, FR10, FR11, FR12, FR14, FR21]
+        ac: [AC07, AC08, AC10, AC11, AC12, AC14, AC21]
       requestBody:
         required: true
         content:
           application/json:
-            schema:
-              $ref: '#/components/schemas/CreateTripRequest'
+            schema: { $ref: '#/components/schemas/CreateTripRequest' }
             example:
               vehicle_type: MOTORBIKE
               pickup_address: Đại học Công nghiệp TP.HCM
@@ -80,555 +39,338 @@ paths:
               distance_km: 5.4
       responses:
         '201':
-          description: Tạo chuyến thành công; chuyến bắt đầu ở trạng thái SEARCHING
+          description: Tạo chuyến thành công
           content:
             application/json:
-              schema:
-                $ref: '#/components/schemas/TripResponse'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
+              schema: { $ref: '#/components/schemas/TripResponse' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
         '409':
-          description: Khách hàng đang có chuyến chưa kết thúc
+          description: Customer đang có active trip
           content:
             application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-              example:
-                success: false
-                message: Bạn đang có một chuyến chưa kết thúc
-                error:
-                  code: ACTIVE_TRIP_EXISTS
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+
   /trips/current:
     get:
-      tags:
-      - Trips
-      summary: Xem chuyến hiện tại của khách hàng
-      description: Trả về trạng thái hiện tại và thông tin tài xế nếu đã được phân công.
+      tags: [Trips]
+      summary: Xem chuyến hiện tại của Customer
       operationId: getCurrentTrip
       x-requirements:
-        fr:
-        - FR09
-        ac:
-        - AC09
+        fr: [FR09]
+        ac: [AC09]
       responses:
         '200':
           description: Lấy chuyến hiện tại thành công
           content:
             application/json:
-              schema:
-                $ref: '#/components/schemas/TripResponse'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
+              schema: { $ref: '#/components/schemas/TripResponse' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
         '404':
-          description: Khách hàng không có chuyến hiện tại
+          description: Không có active trip
           content:
             application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+
   /trips/{tripId}:
     parameters:
-    - $ref: '#/components/parameters/TripId'
+      - $ref: '#/components/parameters/TripId'
     get:
-      tags:
-      - Trips
-      summary: Xem chi tiết chuyến liên quan đến tài khoản
-      description: 'Khách hàng chỉ được xem chuyến do mình đặt; tài xế chỉ được xem chuyến
-
-        được phân công hoặc đang được đề xuất cho mình.
-
-        '
+      tags: [Trips]
+      summary: Xem chi tiết chuyến liên quan tới tài khoản
       operationId: getTripById
+      description: >-
+        CUSTOMER chỉ xem trip của mình. DRIVER chỉ xem trip đã được phân công hoặc
+        trip thuộc offer dành cho mình. OPERATOR dùng API riêng trong operations.yaml.
       x-requirements:
-        fr:
-        - FR03
-        - FR09
-        - FR23
-        ac:
-        - AC03
-        - AC09
-        - AC23
+        fr: [FR09, FR23]
+        ac: [AC09, AC23]
       responses:
         '200':
-          description: Lấy chi tiết chuyến thành công
+          description: Lấy chi tiết thành công
           content:
             application/json:
-              schema:
-                $ref: '#/components/schemas/TripResponse'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
+              schema: { $ref: '#/components/schemas/TripResponse' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
   /trips/{tripId}/cancel:
     parameters:
-    - $ref: '#/components/parameters/TripId'
+      - $ref: '#/components/parameters/TripId'
     post:
-      tags:
-      - Trips
+      tags: [Trips]
       summary: Hủy chuyến
-      description: 'Khách hàng sở hữu chuyến hoặc tài xế được phân công được hủy trước khi
-
-        chuyến chuyển sang `IN_PROGRESS`. Hệ thống chuyển chuyến sang `CANCELLED`,
-
-        trả tài xế về `AVAILABLE` nếu cần và tạo thông báo liên quan.
-
-        '
       operationId: cancelTrip
+      description: >-
+        CUSTOMER được hủy SEARCHING, ACCEPTED hoặc ARRIVED. DRIVER chỉ được hủy trip
+        đã được phân công ở ACCEPTED hoặc ARRIVED. reason là bắt buộc. Nếu CUSTOMER
+        hủy khi trip SEARCHING thì offer PENDING hiện tại phải chuyển CANCELLED.
       x-requirements:
-        fr:
-        - FR16
-        - FR17
-        - FR21
-        ac:
-        - AC16
-        - AC17
-        - AC21
+        fr: [FR16, FR17, FR21]
+        ac: [AC16, AC17, AC21]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CancelTripRequest' }
+            example:
+              reason: Thay đổi kế hoạch
       responses:
         '200':
           description: Hủy chuyến thành công
           content:
             application/json:
-              schema:
-                $ref: '#/components/schemas/TripResponse'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
+              schema: { $ref: '#/components/schemas/TripResponse' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
         '409':
-          description: Không thể hủy chuyến ở trạng thái hiện tại
+          description: Không thể hủy ở trạng thái hiện tại
           content:
             application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-              example:
-                success: false
-                message: Không thể hủy chuyến sau khi đã bắt đầu
-                error:
-                  code: TRIP_CANNOT_BE_CANCELLED
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+
   /trips/{tripId}/status:
     parameters:
-    - $ref: '#/components/parameters/TripId'
+      - $ref: '#/components/parameters/TripId'
     patch:
-      tags:
-      - Trips
+      tags: [Trips]
       summary: Cập nhật trạng thái chuyến
-      description: 'Chỉ tài xế được phân công mới được cập nhật lần lượt
-
-        `ACCEPTED → ARRIVED → IN_PROGRESS → COMPLETED`.
-
-        Không được bỏ qua, quay ngược hoặc cập nhật chuyến đã kết thúc.
-
-
-        Khi chuyển sang `COMPLETED`, hệ thống tính cước theo loại xe và khoảng cách,
-
-        lưu `fare_amount`, lưu `completed_at`, chuyển tài xế về `AVAILABLE` và tạo
-
-        thông báo cho khách hàng.
-
-        '
       operationId: updateTripStatus
+      description: >-
+        Chỉ DRIVER được phân công mới được cập nhật tuần tự
+        ACCEPTED -> ARRIVED -> IN_PROGRESS -> COMPLETED. Khi COMPLETED, hệ thống tính fare,
+        lưu completed_at, chuyển Driver về AVAILABLE và tạo notification.
       x-requirements:
-        fr:
-        - FR15
-        - FR17
-        - FR18
-        - FR21
-        ac:
-        - AC15
-        - AC17
-        - AC18
-        - AC21
+        fr: [FR15, FR17, FR18, FR21]
+        ac: [AC15, AC17, AC18, AC21]
       requestBody:
         required: true
         content:
           application/json:
-            schema:
-              $ref: '#/components/schemas/TripStatusRequest'
-            example:
-              trip_status: ARRIVED
+            schema: { $ref: '#/components/schemas/TripStatusRequest' }
       responses:
         '200':
           description: Cập nhật trạng thái thành công
           content:
             application/json:
-              schema:
-                $ref: '#/components/schemas/TripResponse'
-        '400':
-          $ref: '#/components/responses/BadRequest'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
-        '404':
-          $ref: '#/components/responses/NotFound'
+              schema: { $ref: '#/components/schemas/TripResponse' }
+        '400': { $ref: '#/components/responses/BadRequest' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
         '409':
-          description: Sai trình tự hoặc chuyến đã kết thúc
+          description: Sai trình tự hoặc trip đã kết thúc
           content:
             application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-              example:
-                success: false
-                message: Trạng thái mới không đúng trình tự
-                error:
-                  code: INVALID_TRIP_STATUS_TRANSITION
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+
   /me/trips:
     get:
-      tags:
-      - Trips
+      tags: [Trips]
       summary: Xem lịch sử chuyến của tài khoản
-      description: 'Khách hàng nhận các chuyến do mình đặt; tài xế nhận các chuyến mình thực hiện.
-
-        Danh sách được sắp xếp từ chuyến mới nhất đến cũ nhất.
-
-        '
       operationId: getMyTripHistory
+      description: >-
+        CUSTOMER nhận trip của mình, mới nhất trước, kèm payment_summary nếu có.
+        DRIVER nhận trip đã được phân công nhưng không nhận payment_summary của Customer.
       x-requirements:
-        fr:
-        - FR23
-        ac:
-        - AC23
+        fr: [FR23]
+        ac: [AC23]
       responses:
         '200':
-          description: Lấy lịch sử chuyến thành công; có thể trả về mảng rỗng
+          description: Lấy lịch sử thành công; có thể là mảng rỗng
           content:
             application/json:
-              schema:
-                $ref: '#/components/schemas/TripListResponse'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
-          $ref: '#/components/responses/Forbidden'
+              schema: { $ref: '#/components/schemas/TripHistoryResponse' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+
 components:
   securitySchemes:
     bearerAuth:
       type: http
       scheme: bearer
-      description: Token nhận được sau khi đăng nhập
+      bearerFormat: JWT
   parameters:
     TripId:
       name: tripId
       in: path
       required: true
-      description: Mã chuyến đi
-      schema:
-        type: string
+      schema: { type: string }
       example: trip_001
   responses:
     BadRequest:
-      description: Dữ liệu đầu vào thiếu hoặc không hợp lệ
+      description: Dữ liệu đầu vào không hợp lệ
       content:
         application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorResponse'
-          example:
-            success: false
-            message: Dữ liệu đầu vào không hợp lệ
-            error:
-              code: VALIDATION_ERROR
-              details:
-              - field: vehicle_type
-                message: Giá trị không hợp lệ
+          schema: { $ref: '#/components/schemas/ErrorResponse' }
     Unauthorized:
       description: Chưa đăng nhập hoặc token không hợp lệ
       content:
         application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorResponse'
-          example:
-            success: false
-            message: Bạn cần đăng nhập
-            error:
-              code: UNAUTHORIZED
+          schema: { $ref: '#/components/schemas/ErrorResponse' }
     Forbidden:
-      description: Tài khoản không có quyền thực hiện chức năng
+      description: Không đúng role hoặc không sở hữu tài nguyên
       content:
         application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorResponse'
-          example:
-            success: false
-            message: Bạn không có quyền thực hiện chức năng này
-            error:
-              code: FORBIDDEN
+          schema: { $ref: '#/components/schemas/ErrorResponse' }
     NotFound:
-      description: Không tìm thấy dữ liệu yêu cầu
+      description: Không tìm thấy trip
       content:
         application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorResponse'
-          example:
-            success: false
-            message: Không tìm thấy dữ liệu
-            error:
-              code: NOT_FOUND
+          schema: { $ref: '#/components/schemas/ErrorResponse' }
   schemas:
     VehicleType:
       type: string
-      enum:
-      - MOTORBIKE
-      - CAR
+      enum: [MOTORBIKE, CAR]
     TripStatus:
       type: string
-      enum:
-      - SEARCHING
-      - ACCEPTED
-      - ARRIVED
-      - IN_PROGRESS
-      - COMPLETED
-      - CANCELLED
-      - NO_DRIVER
+      enum: [SEARCHING, ACCEPTED, ARRIVED, IN_PROGRESS, COMPLETED, CANCELLED, NO_DRIVER]
     CreateTripRequest:
       type: object
       additionalProperties: false
       required:
-      - vehicle_type
-      - pickup_address
-      - pickup_latitude
-      - pickup_longitude
-      - destination_address
-      - destination_latitude
-      - destination_longitude
-      - distance_km
+        [vehicle_type, pickup_address, pickup_latitude, pickup_longitude, destination_address, destination_latitude, destination_longitude, distance_km]
       properties:
-        vehicle_type:
-          $ref: '#/components/schemas/VehicleType'
-        pickup_address:
-          type: string
-          minLength: 1
-        pickup_latitude:
-          type: number
-          format: double
-          minimum: -90
-          maximum: 90
-        pickup_longitude:
-          type: number
-          format: double
-          minimum: -180
-          maximum: 180
-        destination_address:
-          type: string
-          minLength: 1
-        destination_latitude:
-          type: number
-          format: double
-          minimum: -90
-          maximum: 90
-        destination_longitude:
-          type: number
-          format: double
-          minimum: -180
-          maximum: 180
+        vehicle_type: { $ref: '#/components/schemas/VehicleType' }
+        pickup_address: { type: string, minLength: 1 }
+        pickup_latitude: { type: number, format: double, minimum: -90, maximum: 90 }
+        pickup_longitude: { type: number, format: double, minimum: -180, maximum: 180 }
+        destination_address: { type: string, minLength: 1 }
+        destination_latitude: { type: number, format: double, minimum: -90, maximum: 90 }
+        destination_longitude: { type: number, format: double, minimum: -180, maximum: 180 }
         distance_km:
           type: number
           format: double
-          exclusiveMinimum: true
           minimum: 0
+          exclusiveMinimum: true
+    CancelTripRequest:
+      type: object
+      additionalProperties: false
+      required: [reason]
+      properties:
+        reason:
+          type: string
+          minLength: 1
+          maxLength: 500
     TripStatusRequest:
       type: object
       additionalProperties: false
-      required:
-      - trip_status
+      required: [trip_status]
       properties:
         trip_status:
           type: string
-          enum:
-          - ARRIVED
-          - IN_PROGRESS
-          - COMPLETED
+          enum: [ARRIVED, IN_PROGRESS, COMPLETED]
     Vehicle:
       type: object
-      required:
-      - id
-      - driver_id
-      - vehicle_type
-      - license_plate
+      required: [id, driver_id, vehicle_type, license_plate]
       properties:
-        id:
-          type: string
-          example: vehicle_001
-        driver_id:
-          type: string
-          example: driver_001
-        vehicle_type:
-          $ref: '#/components/schemas/VehicleType'
-        license_plate:
-          type: string
-          example: 59A1-12345
-        brand:
-          type: string
-          nullable: true
-          example: Honda Wave
+        id: { type: string }
+        driver_id: { type: string }
+        vehicle_type: { $ref: '#/components/schemas/VehicleType' }
+        license_plate: { type: string }
+        brand: { type: string, nullable: true }
     DriverSummary:
       type: object
-      required:
-      - id
-      - full_name
-      - phone
-      - average_rating
-      - vehicle
+      required: [id, full_name, phone, average_rating, vehicle]
       properties:
-        id:
-          type: string
-          example: driver_001
-        full_name:
-          type: string
-          example: Trần Văn Bình
-        phone:
-          type: string
-          example: 0987654321
-        average_rating:
-          type: number
-          format: double
-          example: 4.8
-        vehicle:
-          $ref: '#/components/schemas/Vehicle'
+        id: { type: string }
+        full_name: { type: string }
+        phone: { type: string }
+        average_rating: { type: number, format: double, minimum: 0, maximum: 5 }
+        vehicle: { $ref: '#/components/schemas/Vehicle' }
     Trip:
       type: object
       required:
-      - id
-      - customer_id
-      - vehicle_type
-      - pickup_address
-      - pickup_latitude
-      - pickup_longitude
-      - destination_address
-      - destination_latitude
-      - destination_longitude
-      - distance_km
-      - trip_status
-      - fare_amount
-      - created_at
+        [id, customer_id, vehicle_type, pickup_address, pickup_latitude, pickup_longitude, destination_address, destination_latitude, destination_longitude, distance_km, trip_status, fare_amount, created_at]
       properties:
-        id:
-          type: string
-          example: trip_001
-        customer_id:
-          type: string
-          example: user_customer_001
-        driver_id:
-          type: string
-          nullable: true
-          example: driver_001
+        id: { type: string, example: trip_001 }
+        customer_id: { type: string }
+        driver_id: { type: string, nullable: true }
         driver:
           allOf:
-          - $ref: '#/components/schemas/DriverSummary'
+            - $ref: '#/components/schemas/DriverSummary'
           nullable: true
-        vehicle_type:
-          $ref: '#/components/schemas/VehicleType'
-        pickup_address:
-          type: string
-        pickup_latitude:
-          type: number
-          format: double
-        pickup_longitude:
-          type: number
-          format: double
-        destination_address:
-          type: string
-        destination_latitude:
-          type: number
-          format: double
-        destination_longitude:
-          type: number
-          format: double
-        distance_km:
-          type: number
-          format: double
-          minimum: 0
-        trip_status:
-          $ref: '#/components/schemas/TripStatus'
+        vehicle_type: { $ref: '#/components/schemas/VehicleType' }
+        pickup_address: { type: string }
+        pickup_latitude: { type: number, format: double }
+        pickup_longitude: { type: number, format: double }
+        destination_address: { type: string }
+        destination_latitude: { type: number, format: double }
+        destination_longitude: { type: number, format: double }
+        distance_km: { type: number, format: double, minimum: 0 }
+        trip_status: { $ref: '#/components/schemas/TripStatus' }
         fare_amount:
           type: number
           format: double
           minimum: 0
-          description: 'Bằng 0 trước khi hoàn thành. Khi `COMPLETED`:
-
-            `MOTORBIKE = 10000 + distance_km × 5000`;
-
-            `CAR = 20000 + distance_km × 10000`.
-
-            '
-          example: 37000
-        created_at:
+          description: Bằng 0 trước khi hoàn thành; tính theo RULE10-RULE11 khi COMPLETED.
+        cancel_reason:
           type: string
-          format: date-time
-        completed_at:
-          type: string
-          format: date-time
           nullable: true
-    ValidationDetail:
+          description: Bắt buộc có giá trị khi trip_status là CANCELLED.
+        created_at: { type: string, format: date-time }
+        completed_at: { type: string, format: date-time, nullable: true }
+    PaymentSummary:
       type: object
+      required: [payment_method, payment_status, amount]
       properties:
-        field:
+        payment_method:
           type: string
-        message:
+          enum: [CASH, ELECTRONIC]
+        payment_status:
           type: string
+          enum: [SUCCESS, FAILED]
+        amount:
+          type: number
+          format: double
+          minimum: 0
+    TripHistoryItem:
+      allOf:
+        - $ref: '#/components/schemas/Trip'
+        - type: object
+          properties:
+            payment_summary:
+              allOf:
+                - $ref: '#/components/schemas/PaymentSummary'
+              nullable: true
+              description: Chỉ trả cho CUSTOMER; DRIVER không nhận dữ liệu payment của Customer.
     ErrorInfo:
       type: object
-      required:
-      - code
+      required: [code]
       properties:
-        code:
-          type: string
-          example: VALIDATION_ERROR
+        code: { type: string }
         details:
           type: array
           items:
-            $ref: '#/components/schemas/ValidationDetail'
+            type: object
+            properties:
+              field: { type: string }
+              message: { type: string }
     ErrorResponse:
       type: object
-      required:
-      - success
-      - message
-      - error
+      required: [success, message, error]
       properties:
-        success:
-          type: boolean
-          enum:
-          - false
-        message:
-          type: string
-        error:
-          $ref: '#/components/schemas/ErrorInfo'
+        success: { type: boolean, enum: [false] }
+        message: { type: string }
+        error: { $ref: '#/components/schemas/ErrorInfo' }
     TripResponse:
       type: object
-      required:
-      - success
-      - message
-      - data
+      required: [success, message, data]
       properties:
-        success:
-          type: boolean
-          enum:
-          - true
-        message:
-          type: string
-        data:
-          $ref: '#/components/schemas/Trip'
-    TripListResponse:
+        success: { type: boolean, enum: [true] }
+        message: { type: string }
+        data: { $ref: '#/components/schemas/Trip' }
+    TripHistoryResponse:
       type: object
-      required:
-      - success
-      - message
-      - data
+      required: [success, message, data]
       properties:
-        success:
-          type: boolean
-          enum:
-          - true
-        message:
-          type: string
+        success: { type: boolean, enum: [true] }
+        message: { type: string }
         data:
           type: array
-          items:
-            $ref: '#/components/schemas/Trip'
+          items: { $ref: '#/components/schemas/TripHistoryItem' }
